@@ -1,0 +1,3965 @@
+package com.goli.authplatform.bo;
+import lombok.Getter;
+@Getter
+public enum AccountStatus {
+    NOT_ACTIVE("未激活"),//未激活(未填写学校学号等信息)
+    NORMAL("正常"),//账号正常
+    FREEZE("冻结"),//账号冻结
+    BAN("封禁"),//账号封禁
+    DELETE("注销"),//账号删除
+    ;
+    private AccountStatus(String msg){
+        this.msg = msg;
+    }
+    private String msg;
+}
+package com.goli.authplatform.bo;
+import lombok.Getter;
+@Getter
+public enum AccountType {
+    Student(100),
+    Teacher(200),
+    Admin(300),
+    ;
+    AccountType(int level){
+        this.level = level;
+    }
+    private int level;
+}
+package com.goli.authplatform.bo;
+import lombok.Getter;
+@Getter
+public enum JoinedClassStatus {
+    NORMAL("正常"),
+    Kicked("被踢出班级"),
+    Canceled("班级已关闭"),
+    ;
+    JoinedClassStatus(String msg){
+        this.msg = msg;
+    }
+    private String msg;
+}
+package com.goli.authplatform.bo;
+public enum NotifySendType {
+    MAIL,//邮箱
+}
+package com.goli.authplatform.bo;
+public enum NotifyType {
+    REGISTER_CODE,//注册验证码
+    BINDING_CODE,//绑定验证码
+    LOGIN_CODE,//登录验证码
+    FORGET_CODE,//忘记密码验证码
+}
+package com.goli.authplatform.bo;
+import com.goli.authplatform.model.ClassStudentsEntity;
+import com.goli.authplatform.model.UserBaseInfoEntity;
+import lombok.Getter;
+import lombok.Setter;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+@Getter
+@Setter
+public class UserRichInfo extends UserBaseInfoEntity {
+    protected Map<Integer,ClassStudentsEntity> joinedClass;
+    public UserRichInfo(){
+        this.joinedClass = new HashMap<>();
+    }
+    public void setJoinedClassByList(List<ClassStudentsEntity> joinedClass){
+        for(ClassStudentsEntity each:joinedClass){
+            this.joinedClass.put(each.getClassId(),each);
+        }
+    }
+    public void addJoinedClass(ClassStudentsEntity classInfo){
+        this.joinedClass.put(classInfo.getClassId(),classInfo);
+    }
+    public void setBaseInfo(UserBaseInfoEntity baseInfo){
+        this.userId = baseInfo.getUserId();
+        this.userName = baseInfo.getUserName();
+        this.userMail = baseInfo.getUserMail();
+        this.userPassword = baseInfo.getUserPassword();
+        this.userPhone = baseInfo.getUserPhone();
+        this.userSchoolId = baseInfo.getUserSchoolId();
+        this.userSchoolName = baseInfo.getUserSchoolName();
+        this.userStatus = baseInfo.getUserStatus();
+        this.userStatusStr = baseInfo.getUserStatusStr();
+        this.userSchoolUniqueId = baseInfo.getUserSchoolUniqueId();
+        this.userWechatId = baseInfo.getUserWechatId();
+        this.userType = baseInfo.getUserType();
+        this.userTypeStr = baseInfo.getUserTypeStr();
+    }
+}
+package com.goli.authplatform.bo;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import lombok.Getter;
+import lombok.Setter;
+@Getter
+@Setter
+@JsonIgnoreProperties(ignoreUnknown = true)
+public class WeChatLoginReturn {
+    private String openid;
+    private String session_key;
+    private String unionid;
+    private int errcode;
+    private String errmsg;
+}
+package com.goli.authplatform.common;
+import java.lang.annotation.*;
+@Documented
+@Retention(RetentionPolicy.RUNTIME)
+@Target({ElementType.METHOD, ElementType.TYPE})
+@Inherited
+public @interface AuthCheck {
+    AuthType authType() default AuthType.Student;
+}
+package com.goli.authplatform.common;
+import lombok.Getter;
+@Getter
+public enum AuthType {
+    NoAuth(0),
+    Student(100),
+    Teacher(200),
+    Admin(300),
+    ;
+    AuthType(int level){
+        this.level = level;
+    }
+    private int level;
+}
+package com.goli.authplatform.common;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import lombok.Getter;
+import lombok.Setter;
+import javax.validation.constraints.NotNull;
+@Getter
+@Setter
+public class WebApiResult {
+    private int resultCode;
+    private String resultMsg;
+    private int subCode;
+    private String subMsg;
+    private String sessionID;
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private Object data;
+    public WebApiResult(int _resultCode,String _resultMsg,String _subMsg,Object _data)
+    {
+        this.resultCode = _resultCode;
+        this.resultMsg = _resultMsg;
+        this.subMsg = _subMsg;
+        this.data = _data;
+    }
+    public WebApiResult(WebApiResultCode resultCode,int subCode, String _subMsg,Object _data)
+    {
+        this.resultCode = resultCode.getCode();
+        this.resultMsg = resultCode.getMsg();
+        this.subMsg = _subMsg;
+        this.data = _data;
+    }
+    public void setSubResult(WebApiSubResultCode subResultCode){
+        this.subCode = subResultCode.getCode();
+        this.subMsg = subResultCode.getMsg();
+    }
+    public static WebApiResult success(Object _data)
+    {
+        return new WebApiResult(WebApiResultCode.SUCCESS,0,"",_data);
+    }
+    public static WebApiResult NoLogin()
+    {
+        return new WebApiResult(WebApiResultCode.UN_LOGIN,0,"",null);
+    }
+    public static WebApiResult NoAuth()
+    {
+        return new WebApiResult(WebApiResultCode.NO_AUTH,0,"",null);
+    }
+    public static WebApiResult Failure()
+    {
+        return new WebApiResult(WebApiResultCode.FAILURE,0,"",null);
+    }
+    public static WebApiResult ParameterError()
+    {
+        return new WebApiResult(WebApiResultCode.PARAMETER_ERROR,0,"",null);
+    }
+    public static WebApiResult RequestMethodNotSupport()
+    {
+        return new WebApiResult(WebApiResultCode.REQUEST_METHOD_NOT_SUPPORT,0,"",null);
+    }
+}
+package com.goli.authplatform.common;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import lombok.Getter;
+import lombok.Setter;
+import javax.validation.constraints.NotNull;
+@Getter
+@Setter
+public class WebApiResult {
+    private int resultCode;
+    private String resultMsg;
+    private int subCode;
+    private String subMsg;
+    private String sessionID;
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private Object data;
+    public WebApiResult(int _resultCode,String _resultMsg,String _subMsg,Object _data)
+    {
+        this.resultCode = _resultCode;
+        this.resultMsg = _resultMsg;
+        this.subMsg = _subMsg;
+        this.data = _data;
+    }
+    public WebApiResult(WebApiResultCode resultCode,int subCode, String _subMsg,Object _data)
+    {
+        this.resultCode = resultCode.getCode();
+        this.resultMsg = resultCode.getMsg();
+        this.subMsg = _subMsg;
+        this.data = _data;
+    }
+    public void setSubResult(WebApiSubResultCode subResultCode){
+        this.subCode = subResultCode.getCode();
+        this.subMsg = subResultCode.getMsg();
+    }
+    public static WebApiResult success(Object _data)
+    {
+        return new WebApiResult(WebApiResultCode.SUCCESS,0,"",_data);
+    }
+    public static WebApiResult NoLogin()
+    {
+        return new WebApiResult(WebApiResultCode.UN_LOGIN,0,"",null);
+    }
+    public static WebApiResult NoAuth()
+    {
+        return new WebApiResult(WebApiResultCode.NO_AUTH,0,"",null);
+    }
+    public static WebApiResult Failure()
+    {
+        return new WebApiResult(WebApiResultCode.FAILURE,0,"",null);
+    }
+    public static WebApiResult ParameterError()
+    {
+        return new WebApiResult(WebApiResultCode.PARAMETER_ERROR,0,"",null);
+    }
+    public static WebApiResult RequestMethodNotSupport()
+    {
+        return new WebApiResult(WebApiResultCode.REQUEST_METHOD_NOT_SUPPORT,0,"",null);
+    }
+}
+package com.goli.authplatform.common;
+import lombok.Getter;
+@Getter
+public enum WebApiResultCode {
+    SUCCESS("成功请求",200),
+    UN_LOGIN("未登录",300),
+    NO_AUTH("无权限访问",400),
+    FAILURE("系统内部错误",500),
+    PARAMETER_ERROR("请求参数错误",600),
+    REQUEST_METHOD_NOT_SUPPORT("HTTP请求方式错误,不支持的请求方式",700);
+    private int code;
+    private String msg;
+    private WebApiResultCode(String _msg,int _code)
+    {
+        this.msg = _msg;
+        this.code = _code;
+    }
+    @Override
+    public String toString(){
+        return this.msg;
+    }
+}
+package com.goli.authplatform.common;
+public interface WebApiSubResultCode {
+    int getCode();
+    String getMsg();
+}
+package com.goli.authplatform.config;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.http.client.SimpleClientHttpRequestFactory;
+import org.springframework.web.client.RestTemplate;
+@Configuration
+public class AppConfig {
+    @Value("${rest.read-timeout}")
+    private int readTimeout;
+    @Value("${rest.connect-timeout}")
+    private int connectTimeout;
+    @Bean
+    public SimpleClientHttpRequestFactory customHttpRequestFactory() {
+        SimpleClientHttpRequestFactory httpRequestFactory = new SimpleClientHttpRequestFactory();
+        httpRequestFactory.setReadTimeout(readTimeout);
+        httpRequestFactory.setConnectTimeout(connectTimeout);
+        return httpRequestFactory;
+    }
+    @Bean
+    public RestTemplate customRestTemplate(){
+        return new RestTemplate(customHttpRequestFactory());
+    }
+}
+package com.goli.authplatform.config;
+import lombok.Getter;
+import lombok.Setter;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.PropertySource;
+@Configuration
+@PropertySource("classpath:App.properties")
+@ConfigurationProperties(prefix = "geetest")
+@Getter
+@Setter
+public class GeetestConfig {
+    private String geetest_id;
+    private String geetest_key;
+    private boolean newfailback;
+}
+package com.goli.authplatform.config;
+import lombok.Getter;
+import lombok.Setter;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+@Component
+@Getter
+@Setter
+public class MailConfig{
+    @Value("${mail.smtp.auth}") private String auth;
+    @Value("${mail.host}") private String host;
+    @Value("${mail.transport.protocol}") private String protocol;
+    @Value("${mail.smtp.port}") private int port;
+    @Value("${mail.auth.name}") private String authName;
+    @Value("${mail.auth.password}") private String password;
+    @Value("${mail.is.ssl}") private boolean isSSL;
+    @Value("${mail.send.charset}") private String charset ;
+    @Value("${mail.smtp.timeout}") private String timeout;
+    @Value("${notify.mail.maxsendtimes}") private int maxCallTimes;
+    @Override
+    public String toString() {
+        return "MailConfig{" +
+                "auth='" + auth + '\'' +
+                ", host='" + host + '\'' +
+                ", protocol='" + protocol + '\'' +
+                ", port=" + port +
+                ", authName='" + authName + '\'' +
+                ", password='" + password + '\'' +
+                ", isSSL=" + isSSL +
+                ", charset='" + charset + '\'' +
+                ", timeout='" + timeout + '\'' +
+                '}';
+    }
+}
+package com.goli.authplatform.config;
+import lombok.Getter;
+import lombok.Setter;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+@Component
+@Getter
+@Setter
+public class NginxShareConfig {
+    @Value("${nginxshare.session.timeout}")
+    private long sessionTimeOut;
+    @Value("${nginxshare.session.headerkeyprefix}")
+    private String headerRedisKeyPrefix;
+    @Value("${nginxshare.session.shorttimeout}")
+    private long shortSessionTimeOut;
+}
+package com.goli.authplatform.config;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.data.redis.connection.RedisConnectionFactory;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
+import org.springframework.data.redis.serializer.RedisSerializer;
+import org.springframework.data.redis.serializer.StringRedisSerializer;
+@Configuration
+public class RedisConfig{
+    /**
+     * redis模板，存储关键字是字符串，值是Json序列化
+     * @Description:
+     * @param factory
+     * @return
+     */
+    @Bean
+    public RedisTemplate<String,Object> redisTemplate(RedisConnectionFactory factory) {
+        RedisTemplate<String,Object> redisTemplate = new RedisTemplate<>();
+        redisTemplate.setConnectionFactory(factory);
+        RedisSerializer<String> redisSerializer = new StringRedisSerializer();
+        redisTemplate.setKeySerializer(redisSerializer);
+        redisTemplate.setHashKeySerializer(redisSerializer);
+        GenericJackson2JsonRedisSerializer jackson2JsonRedisSerializer = new GenericJackson2JsonRedisSerializer();
+        redisTemplate.setValueSerializer(jackson2JsonRedisSerializer);
+        redisTemplate.setHashValueSerializer(jackson2JsonRedisSerializer);
+        redisTemplate.afterPropertiesSet();
+        return redisTemplate;
+    }
+}
+package com.goli.authplatform.config;
+import lombok.Getter;
+import lombok.Setter;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+@Component
+@Getter
+@Setter
+public class SMSConfig{
+    @Value("${aliyun.msg.accessKeyId}") private String accessKeyId;
+    @Value("${aliyun.msg.accessKeySecret}") private String accessKeySecret;
+    @Value("${aliyun.msg.timeOut}") private String timeOut;
+    @Value("${aliyun.msg.msgSign}") private String msgSign;
+    @Value("${aliyun.msg.msgTemplateID}") private String msgTemplateID;
+    @Value("${notify.sms.maxsendtimes}") private int maxCallTimes;
+    private final String product = "Dysmsapi";
+    private final String domain = "dysmsapi.aliyuncs.com";
+    @Override
+    public String toString() {
+        return "MessageConfig{" +
+                "accessKeyId='" + accessKeyId + '\'' +
+                ", accessKeySecret='" + accessKeySecret + '\'' +
+                ", timeOut='" + timeOut + '\'' +
+                ", msgSign='" + msgSign + '\'' +
+                ", msgTemplateID='" + msgTemplateID + '\'' +
+                '}';
+    }
+}
+package com.goli.authplatform.config;
+import lombok.Getter;
+import lombok.Setter;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+@Component
+@Getter
+@Setter
+public class WeChatConfig {
+    @Value("${wechat.baseUrl}")private String apiBaseUrl;
+    @Value("${wechat.appid}")private String appId;
+    @Value("${wechat.secretkey}")private String secretKey;
+}
+package com.goli.authplatform.dao;
+import com.goli.authplatform.model.ClassesEntity;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import java.util.List;
+public interface ClassesEntityDao extends JpaRepository<ClassesEntity,Integer> {
+    ClassesEntity getById(int classID);
+    ClassesEntity getByInviteCode(String inviteCode);
+    @Query("FROM ClassesEntity c WHERE c.teacherId = ?1 AND c.enable = true ORDER BY c.createTime DESC")
+    List<ClassesEntity> findByTeacherId(int teacherID);
+}
+package com.goli.authplatform.dao;
+import com.goli.authplatform.bo.JoinedClassStatus;
+import com.goli.authplatform.model.ClassStudentsEntity;
+import com.goli.authplatform.model.UserBaseInfoEntity;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
+import java.util.List;
+public interface ClassStudentsEntityDao extends JpaRepository<ClassStudentsEntity,Integer> {
+    @Query("FROM ClassStudentsEntity c WHERE c.studentId = ?1 AND c.status = 0")
+    List<ClassStudentsEntity> findByStudentId(int studentID);
+    List<ClassStudentsEntity> findByTeacherId(int teacherID);
+    @Query("FROM ClassStudentsEntity c WHERE c.classId = ?1 AND c.status = 0")
+    List<ClassStudentsEntity> findByClassId(int classID);
+    @Modifying
+    @Query("UPDATE ClassStudentsEntity c SET c.status = ?1 WHERE c.classId = ?2")
+    void updateRelationStatus(JoinedClassStatus status, int classID);
+    ClassStudentsEntity findByClassIdAndStudentId(int classId,int studentId);
+    @Modifying
+    void deleteByClassIdAndStudentId(int classId,int studentId);
+    @Modifying
+    @Query("UPDATE ClassStudentsEntity c SET c.status = 1 , c.statusStr = '被踢出班级' WHERE c.studentId = ?1 AND c.classId = ?2")
+    void kickedStudent(int studentId, int classID);
+}
+package com.goli.authplatform.dao;
+import com.goli.authplatform.model.ClassTypeEntity;
+import org.springframework.data.jpa.repository.JpaRepository;
+public interface ClassTypeDao extends JpaRepository<ClassTypeEntity,Integer> {
+    ClassTypeEntity getByTypeId(int id);
+}
+package com.goli.authplatform.dao;
+import com.goli.authplatform.model.SendCodeHistoryEntity;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+public interface SendCodeHistoryEntityDao extends JpaRepository<SendCodeHistoryEntity,Integer> {
+    int countBySendToAndToday(String sendTo,boolean isToday);
+    @Query("UPDATE SendCodeHistoryEntity s SET s.today = FALSE WHERE s.today = TRUE")
+    void flushTodayFlag();
+}
+package com.goli.authplatform.dao;
+import com.goli.authplatform.bo.NotifySendType;
+import com.goli.authplatform.bo.NotifyType;
+import com.goli.authplatform.model.SendTemplateEntity;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
+public interface SendTemplateEntityDao extends JpaRepository<SendTemplateEntity,Integer> {
+    SendTemplateEntity getByValueTypeAndSendType(NotifyType notifyType, NotifySendType notifySendType);
+    @Modifying
+    void deleteByValueTypeAndSendType(NotifyType notifyType, NotifySendType notifySendType);
+}
+package com.goli.authplatform.dao;
+import com.goli.authplatform.model.SupportSchoolEntity;
+import org.springframework.data.jpa.repository.JpaRepository;
+import java.util.List;
+public interface SupportSchoolEntityDao extends JpaRepository<SupportSchoolEntity,Integer> {
+    SupportSchoolEntity getBySchoolId(int id);
+    List<SupportSchoolEntity> findBySchoolNameLike(String key);
+}
+package com.goli.authplatform.dao;
+import com.goli.authplatform.bo.AccountType;
+import com.goli.authplatform.model.UserBaseInfoEntity;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
+import java.util.List;
+public interface UserBaseInfoEntityDao extends JpaRepository<UserBaseInfoEntity,Integer> {
+    UserBaseInfoEntity getByUserMailOrUserPhone(String mail,String phone);
+    UserBaseInfoEntity getByUserWechatId(String weChatID);
+    UserBaseInfoEntity getByUserId(int userID);
+    boolean existsByUserMailOrUserPhone(String mail,String phone);
+    @Query(value = "SELECT * FROM `user_base_info` u WHERE u.user_id IN (SELECT `student_id` FROM `class_students` WHERE `class_id` = ?1 AND `status` = 0)",nativeQuery = true)
+    List<UserBaseInfoEntity> getClassStudents(int classId);
+    @Modifying
+    void deleteByUserId(int userId);
+    boolean existsByUserSchoolIdAndUserSchoolUniqueId(int schoolId,String studentId);
+    List<UserBaseInfoEntity> findByUserType(AccountType userType);
+}
+package com.goli.authplatform.interceptor;
+import com.goli.authplatform.bo.UserRichInfo;
+import com.goli.authplatform.common.AuthCheck;
+import com.goli.authplatform.common.AuthType;
+import com.goli.authplatform.common.WebApiResult;
+import com.goli.authplatform.model.UserBaseInfoEntity;
+import com.goli.authplatform.service.UserService;
+import com.goli.authplatform.utils.CommonUtils;
+import org.aspectj.lang.ProceedingJoinPoint;
+import org.aspectj.lang.annotation.Around;
+import org.aspectj.lang.annotation.Aspect;
+import org.aspectj.lang.annotation.Pointcut;
+import org.aspectj.lang.reflect.MethodSignature;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.annotation.Order;
+import org.springframework.stereotype.Component;
+import org.springframework.web.context.request.RequestAttributes;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
+import javax.servlet.http.HttpServletRequest;
+import java.lang.reflect.Method;
+import java.util.Arrays;
+import java.util.List;
+@Aspect
+@Component
+@Order(2)
+public class AuthInterceptor {
+    @Autowired
+    CommonUtils commonUtils;
+    @Autowired
+    UserService userService;
+    @Value("${auth.userid-header-key}")
+    private String userIDHeaderKey;
+    @Value("${auth.session-header-key}")
+    private String sessionHeaderKey;
+    private static final String userParamKey = "authUserID";
+    private static final String sessionParamKey = "sessionID";
+    private static final Class userInfoParamType = UserRichInfo.class;
+    /**
+     * 判断一个方法是否需要登录
+     *
+     * @param method 方法
+     * @return
+     */
+    private AuthType getAuthType(Method method) {
+        AuthType result = AuthType.NoAuth;
+        if (method.isAnnotationPresent(AuthCheck.class)) {
+            result = method.getAnnotation(AuthCheck.class).authType();
+        }
+        return result;
+    }
+    private int getParamIndex(Class paramType, MethodSignature methodSignature){
+        List<Class> params = Arrays.asList(methodSignature.getParameterTypes());
+        return params.indexOf(paramType);
+    }
+    private int getParamIndex(String paramType, MethodSignature methodSignature){
+        List<String> params = Arrays.asList(methodSignature.getParameterNames());
+        return params.indexOf(paramType);
+    }
+    /**
+     * 定义拦截规则：拦截webapi包下面的所有类中，有@RequestMapping注解的方法。
+     */
+    @Pointcut("execution(* com.goli.authplatform.webapi..*(..))" +
+            " && ( @annotation(org.springframework.web.bind.annotation.RequestMapping )" +
+            " || @annotation(org.springframework.web.bind.annotation.GetMapping) " +
+            " || @annotation(com.goli.authplatform.common.AuthCheck) " +
+            " || @annotation(org.springframework.web.bind.annotation.PostMapping ))")
+    public void AuthMethodPointcut() {
+    }
+    @Around("AuthMethodPointcut()")
+    public Object Interceptor(ProceedingJoinPoint pjp) throws Throwable{
+        MethodSignature signature = (MethodSignature) pjp.getSignature();
+        Method method = signature.getMethod(); //获取被拦截的方法
+        RequestAttributes ra = RequestContextHolder.getRequestAttributes();
+        ServletRequestAttributes sra = (ServletRequestAttributes) ra;
+        HttpServletRequest request = sra.getRequest();
+        Object result = null;
+        AuthType needType = getAuthType(method);
+        Object[] args = pjp.getArgs();
+        if(needType!=AuthType.NoAuth){
+            String headerValue = request.getHeader(userIDHeaderKey);
+            String sessionValue = request.getHeader(sessionHeaderKey);
+            if (headerValue == null || sessionValue == null)
+                result = WebApiResult.NoLogin();
+            else {
+                UserRichInfo userInfo = userService.getUserRichInfo(Integer.parseInt(headerValue));
+                if(userInfo!=null) {
+                    int paramIndex = -1;
+                    if (userInfo.getUserType().getLevel() < needType.getLevel()) {//权限不够的情况
+                        result = WebApiResult.NoAuth();
+                    } else {
+                        if ((paramIndex = getParamIndex(userInfoParamType, signature)) != -1) {
+                            args[paramIndex] = userInfo;
+                        }
+                        if ((paramIndex = getParamIndex(userParamKey, signature)) != -1) {
+                            args[paramIndex] = userInfo.getUserId();
+                        }
+                        if ((paramIndex = getParamIndex(sessionParamKey, signature)) != -1) {
+                            args[paramIndex] = sessionValue;
+                        }
+                    }
+                }else{
+                    result = WebApiResult.NoAuth();
+                }
+            }
+        }
+        if (result == null) {
+            result = pjp.proceed(args);
+        }
+        return result;
+    }
+}
+package com.goli.authplatform.interceptor;
+import com.goli.authplatform.common.WebApiSubResultCode;
+import lombok.Getter;
+/**
+ * 各种错误异常码以及定义内容
+ */
+@Getter
+public enum ErrorTypes implements WebApiSubResultCode {
+    UNKNOWN("未知错误",0),
+    OverSizeFile("文件大小超过限制", 1);
+    private int code;
+    private String msg;
+    ErrorTypes(String _msg, int _code) {
+        this.msg = _msg;
+        this.code = _code;
+    }
+    @Override
+    public String toString() {
+        return this.msg;
+    }
+}
+package com.goli.authplatform.interceptor;
+import com.goli.authplatform.common.WebApiResult;
+import com.goli.authplatform.utils.CommonUtils;
+import com.google.gson.Gson;
+import lombok.Getter;
+import lombok.Setter;
+import org.aspectj.lang.ProceedingJoinPoint;
+import org.aspectj.lang.annotation.Around;
+import org.aspectj.lang.annotation.Aspect;
+import org.aspectj.lang.annotation.Pointcut;
+import org.aspectj.lang.reflect.MethodSignature;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.annotation.Order;
+import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.stereotype.Component;
+import org.springframework.web.context.request.RequestAttributes;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
+import javax.servlet.http.HttpServletRequest;
+import java.lang.reflect.Method;
+import java.util.Map;
+@Getter
+@Setter
+class RunLog{
+    private String createTime;
+    private long spendTime;
+    private String methodName;
+    private String ipAddress;
+    private Map<String, String[]> args;
+    private String token;
+}
+@Getter
+@Setter
+class ErrorLog{
+    private String createTime;
+    private String methodName;
+    private Map<String, String[]> args;
+    private String errorInfo;
+    private String ipAddress;
+    private String token;
+}
+@Aspect
+@Component
+@Order(1)
+public class LogInterceptor {
+    @Autowired
+    private CommonUtils commonUtils;
+    @Value("${auth.session-header-key}")
+    private String sessionHeaderKey;
+    private static final String sessionParamKey = "sessionID";
+    @Autowired
+    private KafkaTemplate kafkaTemplate;
+    @Autowired
+    private Gson gson;
+    @Value("${runlog.topic}")
+    private String runLogTopic;
+    @Value("${errorlog.topic}")
+    private String errorLogTopic;
+    @Value("${log.token}")
+    private String token;
+    @Pointcut("execution(* com.goli.authplatform.webapi..*(..))" +
+            " && ( @annotation(org.springframework.web.bind.annotation.RequestMapping )" +
+            " || @annotation(org.springframework.web.bind.annotation.GetMapping) " +
+            " || @annotation(org.springframework.web.bind.annotation.PostMapping ))")
+    public void LogMethodPointcut() {
+    }
+    @Around("LogMethodPointcut()")
+    public Object Interceptor(ProceedingJoinPoint pjp){
+        MethodSignature signature = (MethodSignature) pjp.getSignature();
+        Method method = signature.getMethod(); //获取被拦截的方法
+        RequestAttributes ra = RequestContextHolder.getRequestAttributes();
+        ServletRequestAttributes sra = (ServletRequestAttributes) ra;
+        HttpServletRequest request = sra.getRequest();
+        //System.out.println("日志拦截器,执行的方法名:"+method.getName());
+        long begin = System.currentTimeMillis();
+        String ipAddress = commonUtils.GetIpAddress(request);
+        String createTime = commonUtils.getNowTime("yyyy-MM-dd HH:mm:ss");
+        String methodName = method.getName();
+        Object result = null;
+        Object[] args = pjp.getArgs();
+        try {
+            result = pjp.proceed();
+            String sessionID;
+            if(result!=null && ((WebApiResult)result).getSessionID()==null) {//登录的时候会更换session
+                if ((sessionID = request.getHeader(sessionHeaderKey)) != null)
+                    ((WebApiResult) result).setSessionID(sessionID);
+            }
+        }catch (Throwable e){
+            result = WebApiResult.Failure();
+            ((WebApiResult) result).setData(e.getMessage());
+            e.printStackTrace();
+            ErrorLog errorLog = new ErrorLog();
+            errorLog.setIpAddress(ipAddress);
+            errorLog.setMethodName(methodName);
+            errorLog.setArgs(request.getParameterMap());
+            errorLog.setCreateTime(createTime);
+            errorLog.setErrorInfo(gson.toJson(e.getStackTrace()));
+            errorLog.setToken(token);
+            kafkaTemplate.send(errorLogTopic,gson.toJson(errorLog));
+        }finally {
+            //long end = System.currentTimeMillis();
+            //System.out.println("日志拦截器结束,耗时:"+(end-begin));
+            long end = System.currentTimeMillis();
+            //System.out.println("日志拦截器结束,耗时:"+(end-begin));
+            RunLog runLog = new RunLog();
+            runLog.setIpAddress(ipAddress);
+            runLog.setMethodName(methodName);
+            runLog.setSpendTime(end-begin);
+            runLog.setCreateTime(createTime);
+            runLog.setArgs(request.getParameterMap());
+            runLog.setToken(token);
+            kafkaTemplate.send(errorLogTopic,gson.toJson(runLog));
+        }
+        return result;
+    }
+}
+package com.goli.authplatform.model;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import javax.persistence.*;
+import java.sql.Timestamp;
+import java.util.Objects;
+@Entity
+@Table(name = "classes", schema = "auth_platform", catalog = "")
+public class ClassesEntity {
+    private int id;
+    private int schoolId;
+    private String schoolName;
+    private int teacherId;
+    private String teacherName;
+    private String className;
+    private int classTypeId;
+    private String classTypeName;
+    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd HH:mm:ss")
+    private Timestamp createTime;
+    private String inviteCode;
+    private boolean enable;
+    @Id
+    @Column(name = "id", nullable = false)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    public int getId() {
+        return id;
+    }
+    public void setId(int id) {
+        this.id = id;
+    }
+    @Basic
+    @Column(name = "school_id", nullable = false)
+    public int getSchoolId() {
+        return schoolId;
+    }
+    public void setSchoolId(int schoolId) {
+        this.schoolId = schoolId;
+    }
+    @Basic
+    @Column(name = "school_name", nullable = false, length = 50)
+    public String getSchoolName() {
+        return schoolName;
+    }
+    public void setSchoolName(String schoolName) {
+        this.schoolName = schoolName;
+    }
+    @Basic
+    @Column(name = "teacher_id", nullable = false)
+    public int getTeacherId() {
+        return teacherId;
+    }
+    public void setTeacherId(int teacherId) {
+        this.teacherId = teacherId;
+    }
+    @Basic
+    @Column(name = "teacher_name", nullable = false, length = 20)
+    public String getTeacherName() {
+        return teacherName;
+    }
+    public void setTeacherName(String teacherName) {
+        this.teacherName = teacherName;
+    }
+    @Basic
+    @Column(name = "class_name", nullable = false, length = 20)
+    public String getClassName() {
+        return className;
+    }
+    public void setClassName(String className) {
+        this.className = className;
+    }
+    @Basic
+    @Column(name = "class_type_id", nullable = false)
+    public int getClassTypeId() {
+        return classTypeId;
+    }
+    public void setClassTypeId(int classTypeId) {
+        this.classTypeId = classTypeId;
+    }
+    @Basic
+    @Column(name = "class_type_name", nullable = false, length = 20)
+    public String getClassTypeName() {
+        return classTypeName;
+    }
+    public void setClassTypeName(String typeName) {
+        this.classTypeName = typeName;
+    }
+    @Basic
+    @Column(name = "create_time", nullable = false)
+    public Timestamp getCreateTime() {
+        return createTime;
+    }
+    public void setCreateTime(Timestamp createTime) {
+        this.createTime = createTime;
+    }
+    @Basic
+    @Column(name = "invite_code", nullable = false)
+    public String getInviteCode() {
+        return inviteCode;
+    }
+    public void setInviteCode(String inviteCode) {
+        this.inviteCode = inviteCode;
+    }
+    @Basic
+    @Column(name = "enable", nullable = false)
+    public boolean isEnable() {
+        return enable;
+    }
+    public void setEnable(boolean enable) {
+        this.enable = enable;
+    }
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ClassesEntity that = (ClassesEntity) o;
+        return id == that.id &&
+                schoolId == that.schoolId &&
+                teacherId == that.teacherId &&
+                Objects.equals(schoolName, that.schoolName) &&
+                Objects.equals(teacherName, that.teacherName) &&
+                Objects.equals(className, that.className) &&
+                Objects.equals(createTime, that.createTime);
+    }
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, schoolId, schoolName, teacherId, teacherName, className, createTime);
+    }
+}
+package com.goli.authplatform.model;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.goli.authplatform.bo.JoinedClassStatus;
+import org.hibernate.annotations.ValueGenerationType;
+import javax.persistence.*;
+import java.sql.Timestamp;
+import java.util.Objects;
+@Entity
+@Table(name = "class_students", schema = "auth_platform", catalog = "")
+public class ClassStudentsEntity {
+    private int id;
+    private String className;
+    private String classType;
+    private int classId;
+    private int studentId;
+    private int teacherId;
+    private String teacherName;
+    private String studentName;
+    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd HH:mm:ss")
+    private Timestamp joinTime;
+    private JoinedClassStatus status;
+    private String statusStr;
+    @Id
+    @Column(name = "id", nullable = false)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    public int getId() {
+        return id;
+    }
+    public void setId(int id) {
+        this.id = id;
+    }
+    @Basic
+    @Column(name = "class_name", nullable = false, length = 20)
+    public String getClassName() {
+        return className;
+    }
+    public void setClassName(String className) {
+        this.className = className;
+    }
+    @Basic
+    @Column(name = "class_type", nullable = false, length = 50)
+    public String getClassType() {
+        return classType;
+    }
+    public void setClassType(String classType) {
+        this.classType = classType;
+    }
+    @Basic
+    @Column(name = "class_id", nullable = false)
+    public int getClassId() {
+        return classId;
+    }
+    public void setClassId(int classId) {
+        this.classId = classId;
+    }
+    @Basic
+    @Column(name = "student_id", nullable = false)
+    public int getStudentId() {
+        return studentId;
+    }
+    public void setStudentId(int studentId) {
+        this.studentId = studentId;
+    }
+    @Basic
+    @Column(name = "teacher_id", nullable = false)
+    public int getTeacherId() {
+        return teacherId;
+    }
+    public void setTeacherId(int teacherId) {
+        this.teacherId = teacherId;
+    }
+    @Basic
+    @Column(name = "teacher_name", nullable = false, length = 255)
+    public String getTeacherName() {
+        return teacherName;
+    }
+    public void setTeacherName(String teacherName) {
+        this.teacherName = teacherName;
+    }
+    @Basic
+    @Column(name = "student_name", nullable = false, length = 20)
+    public String getStudentName() {
+        return studentName;
+    }
+    public void setStudentName(String studentName) {
+        this.studentName = studentName;
+    }
+    @Basic
+    @Column(name = "join_time", nullable = false)
+    public Timestamp getJoinTime() {
+        return joinTime;
+    }
+    public void setJoinTime(Timestamp joinTime) {
+        this.joinTime = joinTime;
+    }
+    @Basic
+    @Column(name = "status", nullable = false)
+    @Enumerated(value = EnumType.ORDINAL)
+    public JoinedClassStatus getStatus() {
+        return status;
+    }
+    public void setStatus(JoinedClassStatus status) {
+        this.status = status;
+        this.statusStr = status.getMsg();
+    }
+    @Basic
+    @Column(name = "status_str", nullable = false, length = 20)
+    public String getStatusStr() {
+        return statusStr;
+    }
+    public void setStatusStr(String statusStr) {
+        this.statusStr = statusStr;
+    }
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ClassStudentsEntity that = (ClassStudentsEntity) o;
+        return id == that.id &&
+                classId == that.classId &&
+                studentId == that.studentId &&
+                teacherId == that.teacherId &&
+                status == that.status &&
+                Objects.equals(className, that.className) &&
+                Objects.equals(teacherName, that.teacherName) &&
+                Objects.equals(studentName, that.studentName) &&
+                Objects.equals(joinTime, that.joinTime) &&
+                Objects.equals(statusStr, that.statusStr);
+    }
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, className, classId, studentId, teacherId, teacherName, studentName, joinTime, status, statusStr);
+    }
+}
+package com.goli.authplatform.model;
+import javax.persistence.*;
+import java.util.Objects;
+@Entity
+@Table(name = "class_type", schema = "auth_platform", catalog = "")
+public class ClassTypeEntity {
+    private int typeId;
+    private String typeName;
+    @Id
+    @Column(name = "type_id", nullable = false)
+    public int getTypeId() {
+        return typeId;
+    }
+    public void setTypeId(int typeId) {
+        this.typeId = typeId;
+    }
+    @Basic
+    @Column(name = "type_name", nullable = false, length = 20)
+    public String getTypeName() {
+        return typeName;
+    }
+    public void setTypeName(String typeName) {
+        this.typeName = typeName;
+    }
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ClassTypeEntity that = (ClassTypeEntity) o;
+        return typeId == that.typeId &&
+                Objects.equals(typeName, that.typeName);
+    }
+    @Override
+    public int hashCode() {
+        return Objects.hash(typeId, typeName);
+    }
+}
+package com.goli.authplatform.model;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import javax.persistence.*;
+import java.sql.Timestamp;
+import java.util.Objects;
+@Entity
+@Table(name = "send_code_history", schema = "auth_platform", catalog = "")
+public class SendCodeHistoryEntity {
+    private int id;
+    private String sendTo;
+    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd HH:mm:ss")
+    private Timestamp sendTime;
+    private String sendValue;
+    private boolean today;
+    @Id
+    @Column(name = "id", nullable = false)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    public int getId() {
+        return id;
+    }
+    public void setId(int id) {
+        this.id = id;
+    }
+    @Basic
+    @Column(name = "send_to", nullable = false, length = 255)
+    public String getSendTo() {
+        return sendTo;
+    }
+    public void setSendTo(String sendTo) {
+        this.sendTo = sendTo;
+    }
+    @Basic
+    @Column(name = "send_time", nullable = false)
+    public Timestamp getSendTime() {
+        return sendTime;
+    }
+    public void setSendTime(Timestamp sendTime) {
+        this.sendTime = sendTime;
+    }
+    @Basic
+    @Column(name = "send_value", nullable = false, length = 1000)
+    public String getSendValue() {
+        return sendValue;
+    }
+    public void setSendValue(String sendValue) {
+        this.sendValue = sendValue;
+    }
+    @Basic
+    @Column(name = "today", nullable = false, length = 1)
+    public boolean isToday() { return today; }
+    public void setToday(boolean today) {
+        this.today = today;
+    }
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        SendCodeHistoryEntity that = (SendCodeHistoryEntity) o;
+        return id == that.id &&
+                Objects.equals(sendTo, that.sendTo) &&
+                Objects.equals(sendTime, that.sendTime) &&
+                Objects.equals(sendValue, that.sendValue);
+    }
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, sendTo, sendTime, sendValue);
+    }
+}
+package com.goli.authplatform.model;
+import com.goli.authplatform.bo.NotifySendType;
+import com.goli.authplatform.bo.NotifyType;
+import javax.persistence.*;
+import java.util.Objects;
+@Entity
+@Table(name = "send_template", schema = "auth_platform", catalog = "")
+public class SendTemplateEntity {
+    private int id;
+    private String templateTitle;
+    private String templateValue;
+    private NotifyType valueType;
+    private NotifySendType sendType;
+    @Id
+    @Column(name = "id", nullable = false)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    public int getId() {
+        return id;
+    }
+    public void setId(int id) {
+        this.id = id;
+    }
+    @Basic
+    @Column(name = "template_title", nullable = false, length = 255)
+    public String getTemplateTitle() {
+        return templateTitle;
+    }
+    public void setTemplateTitle(String templateTitle) {
+        this.templateTitle = templateTitle;
+    }
+    @Basic
+    @Column(name = "template_value", nullable = false, length = 1000)
+    public String getTemplateValue() {
+        return templateValue;
+    }
+    public void setTemplateValue(String templateValue) {
+        this.templateValue = templateValue;
+    }
+    @Basic
+    @Column(name = "value_type", nullable = false)
+    @Enumerated(value = EnumType.ORDINAL)
+    public NotifyType getValueType() {
+        return valueType;
+    }
+    public void setValueType(NotifyType valueType) {
+        this.valueType = valueType;
+    }
+    @Basic
+    @Column(name = "send_type", nullable = false)
+    @Enumerated(value = EnumType.ORDINAL)
+    public NotifySendType getSendType() {
+        return sendType;
+    }
+    public void setSendType(NotifySendType sendType) {
+        this.sendType = sendType;
+    }
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        SendTemplateEntity that = (SendTemplateEntity) o;
+        return id == that.id &&
+                valueType == that.valueType &&
+                sendType == that.sendType &&
+                Objects.equals(templateTitle, that.templateTitle) &&
+                Objects.equals(templateValue, that.templateValue);
+    }
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, templateTitle, templateValue, valueType, sendType);
+    }
+}
+package com.goli.authplatform.model;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import javax.persistence.*;
+import java.sql.Timestamp;
+import java.util.Objects;
+@Entity
+@Table(name = "support_school", schema = "auth_platform", catalog = "")
+public class SupportSchoolEntity {
+    private int schoolId;
+    private String schoolName;
+    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd HH:mm:ss")
+    private Timestamp createTime;
+    @Id
+    @Column(name = "school_id", nullable = false)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    public int getSchoolId() {
+        return schoolId;
+    }
+    public void setSchoolId(int schoolId) {
+        this.schoolId = schoolId;
+    }
+    @Basic
+    @Column(name = "school_name", nullable = false, length = 50)
+    public String getSchoolName() {
+        return schoolName;
+    }
+    public void setSchoolName(String schoolName) {
+        this.schoolName = schoolName;
+    }
+    @Basic
+    @Column(name = "create_time", nullable = false)
+    public Timestamp getCreateTime() {
+        return createTime;
+    }
+    public void setCreateTime(Timestamp createTime) {
+        this.createTime = createTime;
+    }
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        SupportSchoolEntity that = (SupportSchoolEntity) o;
+        return schoolId == that.schoolId &&
+                Objects.equals(schoolName, that.schoolName) &&
+                Objects.equals(createTime, that.createTime);
+    }
+    @Override
+    public int hashCode() {
+        return Objects.hash(schoolId, schoolName, createTime);
+    }
+}
+package com.goli.authplatform.model;
+import com.goli.authplatform.bo.AccountStatus;
+import com.goli.authplatform.bo.AccountType;
+import javax.persistence.*;
+import java.util.Objects;
+@Entity
+@Table(name = "user_base_info", schema = "auth_platform", catalog = "")
+public class UserBaseInfoEntity {
+    protected int userId;
+    protected String userName;
+    protected String userWechatId;
+    protected String userMail;
+    protected String userPhone;
+    protected Integer userSchoolId;
+    protected String userSchoolName;
+    protected String userSchoolUniqueId;
+    protected String userPassword;
+    protected AccountStatus userStatus;
+    protected String userStatusStr;
+    protected AccountType userType;
+    protected String userTypeStr;
+    @Id
+    @Column(name = "user_id", nullable = false)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    public int getUserId() {
+        return userId;
+    }
+    public void setUserId(int userId) {
+        this.userId = userId;
+    }
+    @Basic
+    @Column(name = "user_name", nullable = true, length = 20)
+    public String getUserName() {
+        return userName;
+    }
+    public void setUserName(String userName) {
+        this.userName = userName;
+    }
+    @Basic
+    @Column(name = "user_wechat_id", nullable = true, length = 100)
+    public String getUserWechatId() {
+        return userWechatId;
+    }
+    public void setUserWechatId(String userWechatId) {
+        this.userWechatId = userWechatId;
+    }
+    @Basic
+    @Column(name = "user_mail", nullable = true, length = 255)
+    public String getUserMail() {
+        return userMail;
+    }
+    public void setUserMail(String userMail) {
+        this.userMail = userMail;
+    }
+    @Basic
+    @Column(name = "user_phone", nullable = true, length = 20)
+    public String getUserPhone() {
+        return userPhone;
+    }
+    public void setUserPhone(String userPhone) {
+        this.userPhone = userPhone;
+    }
+    @Basic
+    @Column(name = "user_school_id", nullable = true)
+    public Integer getUserSchoolId() {
+        return userSchoolId;
+    }
+    public void setUserSchoolId(Integer userSchoolId) {
+        this.userSchoolId = userSchoolId;
+    }
+    @Basic
+    @Column(name = "user_school_name", nullable = true, length = 20)
+    public String getUserSchoolName() {
+        return userSchoolName;
+    }
+    public void setUserSchoolName(String userSchoolName) {
+        this.userSchoolName = userSchoolName;
+    }
+    @Basic
+    @Column(name = "user_school_unique_id", nullable = true, length = 20)
+    public String getUserSchoolUniqueId() {
+        return userSchoolUniqueId;
+    }
+    public void setUserSchoolUniqueId(String userSchoolUniqueId) {
+        this.userSchoolUniqueId = userSchoolUniqueId;
+    }
+    @Basic
+    @Column(name = "user_password", nullable = true, length = 70)
+    public String getUserPassword() {
+        return userPassword;
+    }
+    public void setUserPassword(String userPassword) {
+        this.userPassword = userPassword;
+    }
+    @Basic
+    @Column(name = "user_status", nullable = false)
+    @Enumerated(value = EnumType.ORDINAL)
+    public AccountStatus getUserStatus() {
+        return userStatus;
+    }
+    public void setUserStatus(AccountStatus userStatus) {
+        this.userStatus = userStatus;
+        this.userStatusStr = userStatus.getMsg();
+    }
+    @Basic
+    @Column(name = "user_status_str", nullable = false, length = 20)
+    public String getUserStatusStr() {
+        return userStatusStr;
+    }
+    public void setUserStatusStr(String userStatusStr) {
+        this.userStatusStr = userStatusStr;
+    }
+    @Basic
+    @Column(name = "user_type", nullable = false)
+    @Enumerated(value = EnumType.ORDINAL)
+    public AccountType getUserType() {
+        return userType;
+    }
+    public void setUserType(AccountType userType) {
+        this.userType = userType;
+        this.userTypeStr = userType.name();
+    }
+    @Basic
+    @Column(name = "user_type_str", nullable = false, length = 20)
+    public String getUserTypeStr() {
+        return userTypeStr;
+    }
+    public void setUserTypeStr(String userTypeStr) {
+        this.userTypeStr = userTypeStr;
+    }
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        UserBaseInfoEntity that = (UserBaseInfoEntity) o;
+        return userId == that.userId &&
+                userStatus == that.userStatus &&
+                userType == that.userType &&
+                Objects.equals(userName, that.userName) &&
+                Objects.equals(userWechatId, that.userWechatId) &&
+                Objects.equals(userMail, that.userMail) &&
+                Objects.equals(userPhone, that.userPhone) &&
+                Objects.equals(userSchoolId, that.userSchoolId) &&
+                Objects.equals(userSchoolName, that.userSchoolName) &&
+                Objects.equals(userSchoolUniqueId, that.userSchoolUniqueId) &&
+                Objects.equals(userPassword, that.userPassword) &&
+                Objects.equals(userStatusStr, that.userStatusStr) &&
+                Objects.equals(userTypeStr, that.userTypeStr);
+    }
+    @Override
+    public int hashCode() {
+        return Objects.hash(userId, userName, userWechatId, userMail, userPhone, userSchoolId, userSchoolName, userSchoolUniqueId, userPassword, userStatus, userStatusStr, userType, userTypeStr);
+    }
+}
+package com.goli.authplatform.service;
+import com.goli.authplatform.bo.NotifySendType;
+import com.goli.authplatform.bo.NotifyType;
+import com.goli.authplatform.common.AuthCheck;
+import com.goli.authplatform.common.WebApiResult;
+import com.goli.authplatform.common.WebApiSubResultCode;
+import com.goli.authplatform.config.MailConfig;
+import com.goli.authplatform.config.SMSConfig;
+import com.goli.authplatform.dao.SendCodeHistoryEntityDao;
+import com.goli.authplatform.dao.SendTemplateEntityDao;
+import com.goli.authplatform.model.SendCodeHistoryEntity;
+import com.goli.authplatform.model.SendTemplateEntity;
+import com.goli.authplatform.utils.CommonUtils;
+import com.goli.authplatform.utils.MailUtil;
+import com.goli.authplatform.utils.RedisUtil;
+import com.goli.authplatform.utils.SMSUtil;
+import com.goli.authplatform.webapi.UserApi;
+import lombok.Getter;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import java.sql.Timestamp;
+@Service
+public class CaptchaService {
+    @Autowired
+    MailUtil mailUtil;
+    @Autowired
+    SMSUtil smsUtil;
+    @Autowired
+    CommonUtils commonUtils;
+    @Autowired
+    RedisUtil redisUtil;
+    @Autowired
+    private SendCodeHistoryEntityDao sendCodeHistoryEntityDao;
+    @Autowired
+    private MailConfig mailConfig;
+    @Autowired
+    SendTemplateEntityDao sendTemplateEntityDao;
+    @Autowired
+    private SMSConfig smsConfig;
+    @Autowired
+    private UserService userService;
+    @Autowired
+    private TemplateService templateService;
+    private static final String templateKeyPrefix = "AuthPlatform:SendTemplate:";
+    private static final String codeKeyPrefix = "AuthPlatform:Code:";
+    private static final long codeTimeOue = 60;
+    private static final String codeKey = "${code}";
+    private static final String timeKey = "${time}";
+    public boolean sendCodeToNumber(String sendTo, int length, boolean addNumber, boolean addWord, NotifyType notifyType){
+        String randomCode = commonUtils.RandomCode(length,addNumber,addWord);
+        boolean result = false;
+        if(commonUtils.CheckEmail(sendTo)){
+            result = sendCodeToMail(sendTo,randomCode,notifyType);
+        }else{
+            result = sendCodeToPhone(sendTo,randomCode,notifyType);
+        }
+        if(result){
+            String redisKey = codeKeyPrefix + notifyType.ordinal() + ":" + sendTo;
+            redisUtil.set(redisKey,randomCode,codeTimeOue);
+            this.saveSendHistory(randomCode,sendTo);
+        }
+        return result;
+    }
+    private boolean sendCodeToMail(String mail,String code, NotifyType notifyType){
+        boolean result = false;
+        SendTemplateEntity sendTemplate = templateService.getTemplate(notifyType,NotifySendType.MAIL);
+        if(sendTemplate!=null) {
+            String sendValue = sendTemplate.getTemplateValue().replace(codeKey, code);
+            sendValue = sendValue.replace(timeKey, commonUtils.getNowTime());
+            result =  mailUtil.Send(new String[]{mail}, null, sendTemplate.getTemplateTitle(), sendValue, null);
+        }
+        return result;
+    }
+    private boolean sendCodeToPhone(String phone,String code, NotifyType notifyType){
+        return smsUtil.Send(code,phone);
+    }
+    public String getCode(String number, NotifyType notifyType){
+        return (String) redisUtil.get(codeKeyPrefix + notifyType.ordinal() + ":" + number);
+    }
+    public void deleteCode(String number, NotifyType notifyType){
+        redisUtil.del(codeKeyPrefix + notifyType.ordinal() + ":" + number);
+    }
+    public boolean CheckCanSendToNumber(String number){
+        int sendCount = sendCodeHistoryEntityDao.countBySendToAndToday(number,true);
+        boolean result = false;
+        if(commonUtils.CheckEmail(number))
+            result = sendCount<mailConfig.getMaxCallTimes();
+        else
+            result = sendCount<smsConfig.getMaxCallTimes();
+        return result;
+    }
+    public void saveSendHistory(String value,String number){
+        SendCodeHistoryEntity sendCodeHistoryEntity = new SendCodeHistoryEntity();
+        sendCodeHistoryEntity.setSendTo(number);
+        sendCodeHistoryEntity.setSendTime(new Timestamp(System.currentTimeMillis()));
+        sendCodeHistoryEntity.setSendValue(value);
+        sendCodeHistoryEntity.setToday(true);
+        sendCodeHistoryEntityDao.save(sendCodeHistoryEntity);
+    }
+    @Getter
+    enum SendCodeResult implements WebApiSubResultCode {
+        SUCCESS(0, "发送成功"),
+        OUT_LIMIT(1, "今日可发送次数达到上限"),
+        TOO_QUICK(2, "获取验证码速度过快"),
+        EXIST_USER(3, "号码已被绑定过"),
+        UN_EXIST(4, "未被注册的号码"),
+        SYSTEM_BUSY(5, "系统繁忙");
+        SendCodeResult(int _code, String _msg) {
+            this.code = _code;
+            this.msg = _msg;
+        }
+        private int code;
+        private String msg;
+    }
+    
+    public WebApiResult SendCodeCommon(String sendNumber, boolean needUnExist, boolean needExist, NotifyType notifyType) {
+        WebApiResult result = WebApiResult.success(null);
+        boolean realCheckExist = userService.CheckNumberExist(sendNumber);
+        if (needExist && !realCheckExist)
+            result.setSubResult(SendCodeResult.UN_EXIST);
+        else if (needUnExist && realCheckExist)
+            result.setSubResult(SendCodeResult.EXIST_USER);
+        else if (this.getCode(sendNumber, notifyType) != null)
+            result.setSubResult(SendCodeResult.TOO_QUICK);
+        else {
+            if (this.CheckCanSendToNumber(sendNumber)) {
+                if (this.sendCodeToNumber(sendNumber, 6, true, false, notifyType)) {
+                    result.setSubResult(SendCodeResult.SUCCESS);
+                } else {
+                    result.setSubResult(SendCodeResult.SYSTEM_BUSY);
+                }
+            } else {
+                result.setSubResult(SendCodeResult.OUT_LIMIT);
+            }
+        }
+        return result;
+    }
+    @Getter
+    public enum CheckCodeResult implements WebApiSubResultCode {
+        RIGHT(10, "验证码正确"),
+        NO_CODE(11, "验证码已失效或未获取"),
+        ERROR_CODE(12, "验证码错误"),
+        ;
+        CheckCodeResult(int _code, String _msg) {
+            this.code = _code;
+            this.msg = _msg;
+        }
+        private int code;
+        private String msg;
+    }
+    public CheckCodeResult CheckCode(String sendNumber, String code, NotifyType notifyType, boolean deleteIfRight) {
+        String realCode = this.getCode(sendNumber, notifyType);
+        if (realCode == null)
+            return CheckCodeResult.NO_CODE;
+        if (!realCode.equals(code))
+            return CheckCodeResult.ERROR_CODE;
+        if (deleteIfRight)
+            this.deleteCode(sendNumber, notifyType);
+        return CheckCodeResult.RIGHT;
+    }
+}
+package com.goli.authplatform.service;
+import com.goli.authplatform.config.GeetestConfig;
+import com.goli.authplatform.utils.GeetestLib;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import javax.servlet.http.HttpSession;
+import java.util.HashMap;
+@Component
+public class GeeTestService{
+    @Autowired
+    GeetestConfig geetestConfig;
+    private final String SessionKey = "geetest_userid";
+    /**
+     * 极验初次验证
+     *
+     * @param userID     用户唯一ID
+     * @param clientType 客户端类型
+     * @param ipAddress  ip地址
+     * @param session    httpSession
+     * @return
+     */
+    public String FirstCheck(String userID, String clientType, String ipAddress, HttpSession session) {
+        System.out.println(userID+","+clientType+","+ipAddress);
+        GeetestLib gtSdk = new GeetestLib(geetestConfig.getGeetest_id(), geetestConfig.getGeetest_key(), geetestConfig.isNewfailback());
+        String resStr = "{}";
+        HashMap<String, String> param = new HashMap<String, String>();
+        param.put("user_id", userID); //网站用户id
+        param.put("client_type", clientType); //web:电脑上的浏览器；h5:手机上的浏览器，包括移动应用内完全内置的web_view；native：通过原生SDK植入APP应用的方式
+        param.put("ip_address", ipAddress); //传输用户请求验证时所携带的IP
+        int gtServerStatus = gtSdk.preProcess(param);
+        session.setAttribute(gtSdk.gtServerStatusSessionKey, gtServerStatus);
+        session.setAttribute(SessionKey, userID);
+        return gtSdk.getResponseStr();
+    }
+    /**
+     * 极验二次验证
+     *
+     * @param challenge  极验参数
+     * @param validate   极验参数
+     * @param seccode    极验参数
+     * @param clientType 客户端类型
+     * @param ipAddress  ip地址
+     * @param session    httpSession
+     * @return
+     */
+    public boolean SecondCheck(String challenge, String validate, String seccode, String clientType, String ipAddress, HttpSession session) {
+        GeetestLib gtSdk = new GeetestLib(geetestConfig.getGeetest_id(), geetestConfig.getGeetest_key(),geetestConfig.isNewfailback());
+        Integer gt_server_status_code = (Integer) session.getAttribute(gtSdk.gtServerStatusSessionKey);
+        //从session中获取userid
+        if(gt_server_status_code==null) {
+            System.out.println("值为空");
+            return false;
+        }
+        String userid = (String) session.getAttribute(SessionKey);
+        //自定义参数,可选择添加
+        HashMap<String, String> param = new HashMap<String, String>();
+        param.put("user_id", userid); //网站用户id
+        param.put("client_type", clientType); //web:电脑上的浏览器；h5:手机上的浏览器，包括移动应用内完全内置的web_view；native：通过原生SDK植入APP应用的方式
+        param.put("ip_address", ipAddress); //传输用户请求验证时所携带的IP
+        int gtResult = 0;
+        if (gt_server_status_code == 1) {
+            gtResult = gtSdk.enhencedValidateRequest(challenge, validate, seccode, param);
+        } else {
+            gtResult = gtSdk.failbackValidateRequest(challenge, validate, seccode);
+        }
+        boolean result = gtResult==1?true:false;
+        return result;
+    }
+}
+package com.goli.authplatform.service;
+import com.goli.authplatform.bo.JoinedClassStatus;
+import com.goli.authplatform.bo.UserRichInfo;
+import com.goli.authplatform.dao.*;
+import com.goli.authplatform.model.*;
+import com.goli.authplatform.utils.CommonUtils;
+import com.goli.authplatform.utils.RedisUtil;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
+import org.springframework.data.redis.connection.RedisConnection;
+import org.springframework.data.redis.connection.RedisStringCommands;
+import org.springframework.data.redis.core.RedisCallback;
+import org.springframework.data.redis.core.types.Expiration;
+import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
+import org.springframework.data.redis.serializer.RedisSerializer;
+import org.springframework.data.redis.serializer.StringRedisSerializer;
+import org.springframework.lang.Nullable;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.List;
+@Service
+public class SchoolService {
+    @Autowired
+    private SupportSchoolEntityDao supportSchoolEntityDao;
+    @Autowired
+    private RedisUtil redisUtil;
+    @Autowired
+    private ClassesEntityDao classesEntityDao;
+    @Autowired
+    private ClassStudentsEntityDao classStudentsEntityDao;
+    @Autowired
+    private UserService userService;
+    @Autowired
+    private CommonUtils commonUtils;
+    @Autowired
+    private ClassTypeDao classTypeDao;
+    @Autowired
+    private UserBaseInfoEntityDao userBaseInfoEntityDao;
+    private static final String schoolRedisPrefix = "AuthPlatform:School:";
+    private static final String classRedisPrefix = "AuthPlatform:Class:";
+    private static final String userRichInfoRedisPrefix = "AuthPlatform:UserRich:";
+    private static final long redisExpire = 3600;//默认过期时间为3600s,即1小时
+    private static final long longRedisExpire = 604800;
+    //<editor-fold desc="学校相关操作">
+    public SupportSchoolEntity getSchool(int schoolID) {
+        String redisKey = schoolRedisPrefix + schoolID;
+        SupportSchoolEntity school = null;
+        if (redisUtil.hasKey(redisKey)) {
+            school = (SupportSchoolEntity) redisUtil.get(redisKey);
+        } else {
+            school = supportSchoolEntityDao.getBySchoolId(schoolID);
+            if (school != null)
+                redisUtil.set(redisKey, school);
+        }
+        return school;
+    }
+    public void addSchool(String schoolName) {
+        SupportSchoolEntity schoolEntity = new SupportSchoolEntity();
+        schoolEntity.setCreateTime(new Timestamp(System.currentTimeMillis()));
+        schoolEntity.setSchoolName(schoolName);
+        this.updateSchool(schoolEntity);
+    }
+    public void updateSchool(SupportSchoolEntity school) {
+        school = supportSchoolEntityDao.save(school);
+        List<SupportSchoolEntity> allSchool = this.getAllSchools();
+        allSchool.add(school);
+        redisUtil.set(schoolRedisPrefix + "all", allSchool);
+        redisUtil.set(schoolRedisPrefix + school.getSchoolId(), school);
+    }
+    public List<SupportSchoolEntity> getAllSchools() {
+        String redisKey = schoolRedisPrefix + "all";
+        List<SupportSchoolEntity> result = null;
+        if (redisUtil.hasKey(redisKey)) {
+            result = (List<SupportSchoolEntity>) redisUtil.get(redisKey);
+        } else {
+            result = supportSchoolEntityDao.findAll();
+            if (result != null)
+                redisUtil.set(redisKey, result);
+        }
+        return result;
+    }
+    public List<SupportSchoolEntity> getAllSchools(String key) {
+        return supportSchoolEntityDao.findBySchoolNameLike(key + "%");
+    }
+    //</editor-fold>
+    //<editor-fold desc="班级相关操作">
+    public ClassesEntity getClassInfo(int classID) {
+        String redisKey = classRedisPrefix + classID;
+        ClassesEntity result = null;
+        if (redisUtil.hasKey(redisKey)) {
+            result = (ClassesEntity) redisUtil.get(redisKey);
+        } else {
+            result = classesEntityDao.getById(classID);
+            if (result != null) {
+                redisUtil.set(redisKey, result, longRedisExpire);
+                redisUtil.set(classRedisPrefix + result.getInviteCode(), result, longRedisExpire);
+            }
+        }
+        return result;
+    }
+    public ClassesEntity getClassInfoByInviteCode(String inviteCode) {
+        String redisKey = classRedisPrefix + inviteCode;
+        ClassesEntity result = null;
+        if (redisUtil.hasKey(redisKey)) {
+            result = (ClassesEntity) redisUtil.get(redisKey);
+        } else {
+            result = classesEntityDao.getByInviteCode(inviteCode);
+            if (result != null) {
+                redisUtil.set(redisKey, result, longRedisExpire);
+                redisUtil.set(classRedisPrefix + result.getId(), result, longRedisExpire);
+            }
+        }
+        return result;
+    }
+    public void updateClassInfo(ClassesEntity classInfo) {
+        classesEntityDao.save(classInfo);
+        redisUtil.set(classRedisPrefix + classInfo.getId(), classInfo, redisExpire);
+        redisUtil.set(classRedisPrefix + classInfo.getInviteCode(), classInfo, redisExpire);
+    }
+    public void joinClass(UserBaseInfoEntity studentInfo, ClassesEntity classInfo) {
+        if (classInfo != null) {
+            ClassStudentsEntity classStudentsEntity = new ClassStudentsEntity();
+            classStudentsEntity.setClassId(classInfo.getId());
+            classStudentsEntity.setClassName(classInfo.getClassName());
+            classStudentsEntity.setClassType(classInfo.getClassTypeName());
+            classStudentsEntity.setJoinTime(new Timestamp(System.currentTimeMillis()));
+            classStudentsEntity.setStatus(JoinedClassStatus.NORMAL);
+            classStudentsEntity.setStudentId(studentInfo.getUserId());
+            classStudentsEntity.setStudentName(studentInfo.getUserName());
+            classStudentsEntity.setTeacherId(classInfo.getTeacherId());
+            classStudentsEntity.setTeacherName(classInfo.getTeacherName());
+            classStudentsEntity = classStudentsEntityDao.save(classStudentsEntity);
+            UserRichInfo userRichInfo = userService.getUserRichInfo(studentInfo.getUserId());
+            userRichInfo.addJoinedClass(classStudentsEntity);
+            userService.updateRichInfo(userRichInfo);
+        }
+    }
+    public ClassesEntity createClass(UserRichInfo teacherInfo, String className,ClassTypeEntity classType) {
+        ClassesEntity newClass = new ClassesEntity();
+        newClass.setClassName(className);
+        newClass.setCreateTime(new Timestamp(System.currentTimeMillis()));
+        newClass.setEnable(true);
+        newClass.setTeacherId(teacherInfo.getUserId());
+        newClass.setTeacherName(teacherInfo.getUserName());
+        newClass.setSchoolId(teacherInfo.getUserSchoolId());
+        newClass.setSchoolName(teacherInfo.getUserSchoolName());
+        //随机六位数+该教师编号+目前创建的班级数目,一定是唯一字符串
+        newClass.setInviteCode(commonUtils.RandomCode(6, true, true) + teacherInfo.getUserId() + "A" + teacherInfo.getJoinedClass().size());
+        newClass.setClassTypeId(classType.getTypeId());
+        newClass.setClassTypeName(classType.getTypeName());
+        newClass = classesEntityDao.save(newClass);
+        ClassStudentsEntity newAddClass = new ClassStudentsEntity();
+        newAddClass.setClassId(newClass.getId());
+        newAddClass.setClassName(newClass.getClassName());
+        newAddClass.setTeacherId(newClass.getTeacherId());
+        newAddClass.setTeacherName(newClass.getTeacherName());
+        JoinedClassStatus classStatus = JoinedClassStatus.NORMAL;
+        if (!newClass.isEnable())
+            classStatus = JoinedClassStatus.Canceled;
+        newAddClass.setStatus(classStatus);
+        teacherInfo.addJoinedClass(newAddClass);
+        userService.updateRichInfo(teacherInfo);
+        return newClass;
+    }
+    @Transactional(rollbackFor = Exception.class)
+    public synchronized void deleteClass(ClassesEntity classInfo) {
+        classInfo.setEnable(false);
+        this.updateClassInfo(classInfo);
+        classStudentsEntityDao.updateRelationStatus(JoinedClassStatus.Canceled, classInfo.getId());
+        List<ClassStudentsEntity> classStudents = classStudentsEntityDao.findByClassId(classInfo.getId());
+        List<UserRichInfo> dirtyDatas = new ArrayList<>();
+        for (ClassStudentsEntity each : classStudents) {
+            String redisKey = userRichInfoRedisPrefix + each.getStudentId();
+            if (redisUtil.hasKey(redisKey)) {
+                UserRichInfo eachStudent = (UserRichInfo) redisUtil.get(redisKey);
+                eachStudent.getJoinedClass().get(classInfo.getId()).setStatus(JoinedClassStatus.Canceled);
+                dirtyDatas.add(eachStudent);
+            }
+        }
+        redisUtil.getRedisTemplate().execute(new RedisCallback<Object>() {
+            @Override
+            @Nullable
+            public Object doInRedis(RedisConnection redisConnection) throws DataAccessException {
+                redisConnection.openPipeline();
+                RedisSerializer<String> keySerializer = new StringRedisSerializer();
+                GenericJackson2JsonRedisSerializer jackson2JsonRedisSerializer = new GenericJackson2JsonRedisSerializer();
+                for (UserRichInfo each : dirtyDatas) {
+                    byte[] redisKey = keySerializer.serialize(userRichInfoRedisPrefix + each.getUserId());
+                    redisConnection.set(redisKey, jackson2JsonRedisSerializer.serialize(each), Expiration.seconds(redisExpire), RedisStringCommands.SetOption.UPSERT);
+                }
+                redisConnection.closePipeline();
+                return null;
+            }
+        });
+        String redisKey = userRichInfoRedisPrefix + classInfo.getTeacherId();
+        if (redisUtil.hasKey(redisKey)) {
+            UserRichInfo teacherInfo = (UserRichInfo) redisUtil.get(redisKey);
+            teacherInfo.getJoinedClass().get(classInfo.getId()).setStatus(JoinedClassStatus.Canceled);
+            userService.updateRichInfo(teacherInfo);
+        }
+    }
+    public void inviteStudent(UserRichInfo studentInfo, ClassesEntity classInfo, UserRichInfo teacherInfo) {
+        ClassStudentsEntity classStudentsEntity = new ClassStudentsEntity();
+        classStudentsEntity.setStatus(JoinedClassStatus.NORMAL);
+        classStudentsEntity.setTeacherName(teacherInfo.getUserName());
+        classStudentsEntity.setTeacherId(teacherInfo.getUserId());
+        classStudentsEntity.setStudentName(studentInfo.getUserName());
+        classStudentsEntity.setStudentId(studentInfo.getUserId());
+        classStudentsEntity.setJoinTime(new Timestamp(System.currentTimeMillis()));
+        classStudentsEntity.setClassName(classInfo.getClassName());
+        classStudentsEntity.setClassId(classInfo.getId());
+        studentInfo.addJoinedClass(classStudentsEntity);
+        userService.updateRichInfo(studentInfo);
+    }
+    @Transactional
+    public void quitClass(UserRichInfo userRichInfo, ClassesEntity classInfo) {
+        classStudentsEntityDao.deleteByClassIdAndStudentId(classInfo.getId(),userRichInfo.getUserId());
+    }
+    @Transactional
+    public void KickedClass(int studentId, ClassesEntity classInfo) {
+        classStudentsEntityDao.kickedStudent(studentId,classInfo.getId());
+    }
+    //</editor-fold>
+    public List<UserBaseInfoEntity> getClassStudents(int classId){
+        return userBaseInfoEntityDao.getClassStudents(classId);
+    }
+    public List<ClassTypeEntity> getAllClassTypes(){
+        return classTypeDao.findAll();
+    }
+    public ClassTypeEntity getClassType(int id){
+        return classTypeDao.getByTypeId(id);
+    }
+}
+package com.goli.authplatform.service;
+import com.goli.authplatform.bo.NotifySendType;
+import com.goli.authplatform.bo.NotifyType;
+import com.goli.authplatform.dao.SendTemplateEntityDao;
+import com.goli.authplatform.model.SendTemplateEntity;
+import com.goli.authplatform.utils.RedisUtil;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import java.util.List;
+@Service
+public class TemplateService {
+    @Autowired
+    SendTemplateEntityDao sendTemplateEntityDao;
+    @Autowired
+    RedisUtil redisUtil;
+    private static final String templateKeyPrefix = "AuthPlatform:SendTemplate:";
+    public SendTemplateEntity getTemplate(NotifyType notifyType, NotifySendType sendType) {
+        String redisKey = templateKeyPrefix + sendType.name() + ":" + notifyType.name();
+        SendTemplateEntity sendTemplate = null;
+        if (redisUtil.hasKey(redisKey))
+            sendTemplate = (SendTemplateEntity) redisUtil.get(redisKey);
+        else {
+            sendTemplate = sendTemplateEntityDao.getByValueTypeAndSendType(notifyType, NotifySendType.MAIL);
+            if (sendTemplate != null)
+                redisUtil.set(redisKey, sendTemplate);//永久缓存,除非出现变动
+        }
+        return sendTemplate;
+    }
+    public List<SendTemplateEntity> getAllTemplates(){
+        return sendTemplateEntityDao.findAll();
+    }
+    public SendTemplateEntity addTemplate(NotifyType notifyType,NotifySendType notifySendType,String title,String value){
+        SendTemplateEntity sendTemplateEntity = new SendTemplateEntity();
+        sendTemplateEntity.setTemplateValue(value);
+        sendTemplateEntity.setTemplateTitle(title);
+        sendTemplateEntity.setSendType(notifySendType);
+        sendTemplateEntity.setValueType(notifyType);
+        sendTemplateEntity = sendTemplateEntityDao.save(sendTemplateEntity);
+        redisUtil.set(templateKeyPrefix + notifySendType.name() + ":" + notifyType.name(),sendTemplateEntity);
+        return sendTemplateEntity;
+    }
+    public void updateTemplate(NotifyType notifyType,NotifySendType sendType,String newTitle,String newValue){
+        String redisKey = templateKeyPrefix + sendType.name() + ":" + notifyType.name();
+        SendTemplateEntity sendTemplateEntity = this.getTemplate(notifyType,sendType);
+        if(sendTemplateEntity!=null) {
+            sendTemplateEntity.setTemplateTitle(newTitle);
+            sendTemplateEntity.setTemplateValue(newValue);
+            redisUtil.set(redisKey,sendTemplateEntity);
+            sendTemplateEntityDao.save(sendTemplateEntity);
+        }
+    }
+    public void deleteTemplate(NotifyType notifyType,NotifySendType sendType){
+        redisUtil.del(templateKeyPrefix + sendType.name() + ":" + notifyType.name());
+        sendTemplateEntityDao.deleteByValueTypeAndSendType(notifyType,sendType);
+    }
+}
+package com.goli.authplatform.service;
+import com.goli.authplatform.bo.*;
+import com.goli.authplatform.config.NginxShareConfig;
+import com.goli.authplatform.config.WeChatConfig;
+import com.goli.authplatform.dao.ClassStudentsEntityDao;
+import com.goli.authplatform.dao.ClassesEntityDao;
+import com.goli.authplatform.dao.UserBaseInfoEntityDao;
+import com.goli.authplatform.model.ClassStudentsEntity;
+import com.goli.authplatform.model.ClassesEntity;
+import com.goli.authplatform.model.UserBaseInfoEntity;
+import com.goli.authplatform.utils.CommonUtils;
+import com.goli.authplatform.utils.RedisUtil;
+import com.google.gson.Gson;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.RestTemplate;
+import java.util.ArrayList;
+import java.util.List;
+@Service
+public class UserService {
+    @Autowired
+    private CommonUtils commonUtils;
+    @Autowired
+    private UserBaseInfoEntityDao userBaseInfoEntityDao;
+    @Autowired
+    private RedisUtil redisUtil;
+    @Autowired
+    private RestTemplate restTemplate;
+    @Autowired
+    private WeChatConfig weChatConfig;
+    @Autowired
+    private NginxShareConfig nginxShareConfig;
+    @Autowired
+    private ClassStudentsEntityDao classStudentsEntityDao;
+    @Autowired
+    private SchoolService schoolService;
+    @Autowired
+    private ClassesEntityDao classesEntityDao;
+    private static final String userInfoRedisPrefix = "AuthPlatform:User:";
+    private static final String userRichInfoRedisPrefix = "AuthPlatform:UserRich:";
+    private static final long redisExpire = 3600;//默认过期时间为3600s,即1小时
+    private static final long longRedisExpire = 604800;
+    //<editor-fold desc="用户添加的相关操作">
+    @Transactional
+    public UserBaseInfoEntity AddUser(UserBaseInfoEntity userInfo) {
+        return userBaseInfoEntityDao.save(userInfo);
+    }
+    public UserBaseInfoEntity AddStudent(UserBaseInfoEntity userInfo) {
+        userInfo.setUserStatus(AccountStatus.NOT_ACTIVE);
+        userInfo.setUserType(AccountType.Student);
+        return this.AddUser(userInfo);
+    }
+    public UserBaseInfoEntity AddTeacher(UserBaseInfoEntity userInfo) {
+        userInfo.setUserStatus(AccountStatus.NOT_ACTIVE);
+        userInfo.setUserType(AccountType.Teacher);
+        return this.AddUser(userInfo);
+    }
+    public UserBaseInfoEntity AddAdmin(UserBaseInfoEntity userInfo) {
+        userInfo.setUserStatus(AccountStatus.NORMAL);
+        userInfo.setUserType(AccountType.Admin);
+        return this.AddUser(userInfo);
+    }
+    //</editor-fold>
+    //<editor-fold desc="查询用户的信息等操作">
+    /**
+     * 通过邮箱或者电话号码获取用户信息
+     *
+     * @param loginID 电话或者邮箱号
+     * @return 返回找到的信息
+     */
+    public UserBaseInfoEntity GetUserInfoByLoginID(String loginID) {
+        UserBaseInfoEntity result = null;
+        if (redisUtil.hasKey(userInfoRedisPrefix + loginID))
+            result = (UserBaseInfoEntity) redisUtil.get(userInfoRedisPrefix + loginID);
+        else {
+            result = userBaseInfoEntityDao.getByUserMailOrUserPhone(loginID, loginID);
+            if (result != null)
+                redisUtil.set(userInfoRedisPrefix + loginID, result, redisExpire);
+        }
+        return result;
+    }
+    public UserBaseInfoEntity getUserInfo(int userID) {
+        UserBaseInfoEntity result = null;
+        String redisKey = userInfoRedisPrefix + userID;
+        if (redisUtil.hasKey(redisKey)) {
+            result = (UserBaseInfoEntity) redisUtil.get(redisKey);
+        } else {
+            result = userBaseInfoEntityDao.getByUserId(userID);
+            if (result != null) {
+                redisUtil.set(redisKey, result, redisExpire);
+            }
+        }
+        return result;
+    }
+    public UserRichInfo getUserRichInfo(int userID) {
+        UserRichInfo result = null;
+        String redisKey = userRichInfoRedisPrefix + userID;
+        if (redisUtil.hasKey(redisKey)) {
+            Object temp = redisUtil.get(redisKey);
+            result = (UserRichInfo) redisUtil.get(redisKey);
+        } else {
+            UserBaseInfoEntity baseInfo = null;
+            String baseRedisKey = userInfoRedisPrefix + userID;
+            baseInfo = this.getUserInfo(userID);
+            if (baseInfo != null) {
+                redisUtil.set(baseRedisKey, baseInfo);
+                result = new UserRichInfo();
+                result.setBaseInfo(baseInfo);
+                if (baseInfo.getUserType() == AccountType.Student)
+                    result.setJoinedClassByList(classStudentsEntityDao.findByStudentId(userID));
+                else if (baseInfo.getUserType() == AccountType.Teacher) {
+                    List<ClassesEntity> teachedClass = classesEntityDao.findByTeacherId(userID);
+                    List<ClassStudentsEntity> joinedClasses = new ArrayList<>();
+                    for (ClassesEntity each : teachedClass) {
+                        ClassStudentsEntity temp = new ClassStudentsEntity();
+                        temp.setClassId(each.getId());
+                        temp.setClassName(each.getClassName());
+                        temp.setTeacherId(each.getTeacherId());
+                        temp.setTeacherName(each.getTeacherName());
+                        JoinedClassStatus classStatus = JoinedClassStatus.NORMAL;
+                        if (!each.isEnable())
+                            classStatus = JoinedClassStatus.Canceled;
+                        temp.setStatus(classStatus);
+                        joinedClasses.add(temp);
+                    }
+                    result.setJoinedClassByList(joinedClasses);
+                }
+            }
+            if (result != null)
+                redisUtil.set(redisKey, result, redisExpire);
+        }
+        return result;
+    }
+    public boolean CheckNumberExist(String number) {
+        return userBaseInfoEntityDao.existsByUserMailOrUserPhone(number, number);
+    }
+    //</editor-fold>
+    //<editor-fold desc="用户登录的session解决">
+    /**
+     * 生成用户的sessionID,同时缓存到redis给网关使用
+     *
+     * @param userID 用户的ID编号
+     * @return
+     */
+    public String getLoginSessionID(int userID) {
+        String sessionID = commonUtils.CreateSessionID();
+        redisUtil.set(nginxShareConfig.getHeaderRedisKeyPrefix() + sessionID, userID, nginxShareConfig.getSessionTimeOut());
+        return sessionID;
+    }
+    public String getLoginSessionIdWithShortTimeOut(int userID) {
+        return getLoginSessionID(userID, nginxShareConfig.getShortSessionTimeOut());
+    }
+    public String getLoginSessionID(int userID, long timeOut) {
+        String sessionID = commonUtils.CreateSessionID();
+        redisUtil.set(nginxShareConfig.getHeaderRedisKeyPrefix() + sessionID, userID, timeOut);
+        return sessionID;
+    }
+    //</editor-fold>
+    /**
+     * 使用微信进行登录,未注册用户自动进行注册
+     *
+     * @param weChatCode 微信小程序端获取的code
+     * @return 返回找到或者新建的学生信息
+     */
+    public UserBaseInfoEntity GetUserInfoByWeChatCode(String weChatCode) {
+        final int errorCode_code = 40029;//weChatCode错误
+        final int rightCode = 0;//正常返回码
+        StringBuilder requestUrlBuilder = new StringBuilder(weChatConfig.getApiBaseUrl())
+                .append("/sns/jscode2session?appid=").append(weChatConfig.getAppId())
+                .append("&secret=").append(weChatConfig.getSecretKey())
+                .append("&js_code=").append(weChatCode)
+                .append("&grant_type=authorization_code");
+        String responseData = restTemplate.getForObject(requestUrlBuilder.toString(), String.class);
+        WeChatLoginReturn getData = new Gson().fromJson(responseData, WeChatLoginReturn.class);
+//        WeChatLoginReturn getData = restTemplate.getForObject(requestUrlBuilder.toString(),WeChatLoginReturn.class);
+        if (getData.getErrcode() == rightCode) {
+            UserBaseInfoEntity userBaseInfoEntity = userBaseInfoEntityDao.getByUserWechatId(getData.getOpenid());
+            if (userBaseInfoEntity == null) {
+                userBaseInfoEntity = new UserBaseInfoEntity();
+                userBaseInfoEntity.setUserWechatId(getData.getOpenid());
+                userBaseInfoEntity = this.AddStudent(userBaseInfoEntity);
+            }
+            redisUtil.set(userInfoRedisPrefix + userBaseInfoEntity.getUserId(), userBaseInfoEntity, redisExpire);
+            return userBaseInfoEntity;
+        } else {
+            return null;
+        }
+    }
+    /**
+     * 通过邮箱或者电话号码登录时进行缓存是通过邮箱或者手机号进行的,这里将缓存进行置换,
+     * 将key改为用户唯一ID
+     *
+     * @param loginID
+     * @param userBaseInfoEntity
+     */
+    public void RefreshLoginCache(String loginID, UserBaseInfoEntity userBaseInfoEntity) {
+        redisUtil.del(userInfoRedisPrefix + loginID);
+        redisUtil.set(userInfoRedisPrefix + userBaseInfoEntity.getUserId(), userBaseInfoEntity, redisExpire);
+    }
+    /**
+     * 更新用户信息,redis和db
+     *
+     * @param userBaseInfoEntity
+     */
+    public void updateUserInfo(UserBaseInfoEntity userBaseInfoEntity) {
+        if(userBaseInfoEntity!=null) {
+            userBaseInfoEntityDao.save(userBaseInfoEntity);
+            redisUtil.set(userInfoRedisPrefix + userBaseInfoEntity.getUserId(), userBaseInfoEntity, redisExpire);
+            String richKey = userRichInfoRedisPrefix + userBaseInfoEntity.getUserId();
+            if (redisUtil.hasKey(richKey)) {
+                UserRichInfo richInfo = (UserRichInfo) redisUtil.get(richKey);
+                richInfo.setBaseInfo(userBaseInfoEntity);
+                redisUtil.set(richKey, richInfo, redisExpire);
+            }
+        }
+    }
+    public void updateRichInfo(UserRichInfo userInfo) {
+        redisUtil.set(userRichInfoRedisPrefix + userInfo.getUserId(), userInfo, redisExpire);
+    }
+    public List<ClassesEntity> getTeachedClass(int teacherId){
+        return classesEntityDao.findByTeacherId(teacherId);
+    }
+    @Transactional
+    public void deleteUser(int userId){
+        userBaseInfoEntityDao.deleteByUserId(userId);
+        redisUtil.del(userInfoRedisPrefix + userId);
+        redisUtil.del(userRichInfoRedisPrefix + userId);
+    }
+    public boolean checkStudentNumber(int schoolId,String uniqueId){
+        return !userBaseInfoEntityDao.existsByUserSchoolIdAndUserSchoolUniqueId(schoolId,uniqueId);
+    }
+    public List<UserBaseInfoEntity> getAllStudentInfo(){
+        return userBaseInfoEntityDao.findByUserType(AccountType.Student);
+    }
+}
+package com.goli.authplatform.utils;
+import org.springframework.beans.BeansException;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
+import org.springframework.stereotype.Component;
+@Component
+public class BeanContext implements ApplicationContextAware {
+    private static ApplicationContext applicationContext;
+    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+        BeanContext.applicationContext = applicationContext;
+    }
+    public static ApplicationContext getApplicationContext(){
+        return applicationContext;
+    }
+    @SuppressWarnings("unchecked")
+    public static <T> T getBean(String name) throws BeansException {
+        return (T)applicationContext.getBean(name);
+    }
+    public static <T> T getBean(Class<T> clz) throws BeansException {
+        return applicationContext.getBean(clz);
+    }
+}
+package com.goli.authplatform.utils;
+import org.springframework.stereotype.Component;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Random;
+import java.util.UUID;
+@Component
+public class CommonUtils {
+    private final String Session_GetUserKey = "userID";
+    private final char[] randomArray = {'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z'};
+    public boolean CheckEmail(String address)
+    {
+        return address.indexOf('@')!=-1;
+    }
+    public String RandomCode(int length,boolean addNum,boolean addWord){
+        String result = null;
+        if(addNum||addWord){
+            int startChoose = 10;
+            int endChoose = 10;
+            if(addNum)
+                startChoose = 0;
+            if(addWord)
+                endChoose = 36;
+            StringBuilder resultBuilder = new StringBuilder();
+            Random random = new Random(System.currentTimeMillis());
+            int chooseLength = endChoose - startChoose;
+            for(int i=0;i<length;i++) {
+                char choose = randomArray[random.nextInt(chooseLength)+startChoose];
+                resultBuilder.append(choose);
+            }
+            result = resultBuilder.toString();
+        }
+        return result;
+    }
+    public String getNowTime(String format) {
+        SimpleDateFormat df = new SimpleDateFormat(format);
+        return df.format(new Date());
+    }
+    public String getNowTime(){
+        return this.getNowTime("yyyy年MM月dd日 HH:mm:ss");
+    }
+    /**
+     * 获取用户登录ID,未登录返回-1
+     * @return
+     */
+    public int GetLoginID(int uID) {
+        return -1;
+    }
+    /**
+     * 设置用户登录ID
+     * @return
+     */
+    public boolean SetLoginID(int userID) {
+        return true;
+    }
+    /**
+     * 设置用户登录ID
+     * @param httpSession
+     * @return
+     */
+    public boolean RemoveLoginID(HttpSession httpSession) {
+        if(httpSession!=null){
+            httpSession.removeAttribute(Session_GetUserKey);
+            return true;
+        }else{
+            return false;
+        }
+    }
+    public String GetIpAddress(HttpServletRequest request) {
+        String ip = request.getHeader("X-Forwarded-For");
+        if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {
+            ip = request.getHeader("Proxy-Client-IP");
+        }
+        if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {
+            ip = request.getHeader("WL-Proxy-Client-IP");
+        }
+        if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {
+            ip = request.getHeader("HTTP_CLIENT_IP");
+        }
+        if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {
+            ip = request.getHeader("HTTP_X_FORWARDED_FOR");
+        }
+        if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {
+            ip = request.getRemoteAddr();
+        }
+        return ip;
+    }
+    public String CreateSessionID(){
+        return UUID.randomUUID().toString();
+    }
+}
+package com.goli.authplatform.utils;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+import java.math.BigInteger;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+@Component
+public class EncodeUtils {
+    @Value("${encoding.md5.salt}") private String salt;
+    public String MD5(String plainText){
+        plainText = plainText + salt;
+        String result;
+        byte[] secretBytes = null;
+        try {
+            MessageDigest md = MessageDigest.getInstance("MD5");
+            md.update(plainText.getBytes());
+            secretBytes = md.digest();
+            result = new BigInteger(1, secretBytes).toString(16);
+            for (int i = 0; i < 32 - result.length(); i++) {
+                result = "0" + result;
+            }
+        } catch (NoSuchAlgorithmException e) {
+            result = null;
+        }
+        return result;
+    }
+}
+package com.goli.authplatform.utils;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStreamWriter;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.HashMap;
+/**
+ * Java SDK
+ */
+public class GeetestLib {
+    protected final String verName = "4.0";
+    protected final String apiUrl = "http://api.geetest.com";
+    protected final String registerUrl = "/register.php";
+    protected final String validateUrl = "/validate.php";
+    protected final String json_format = "1";
+    /**
+     * 极验验证二次验证表单数据 chllenge
+     */
+    public static final String fn_geetest_challenge = "geetest_challenge";
+    /**
+     * 极验验证二次验证表单数据 validate
+     */
+    public static final String fn_geetest_validate = "geetest_validate";
+    /**
+     * 极验验证二次验证表单数据 seccode
+     */
+    public static final String fn_geetest_seccode = "geetest_seccode";
+    /**
+     * 公钥
+     */
+    private String captchaId = "";
+    /**
+     * 私钥
+     */
+    private String privateKey = "";
+    /**
+     * 是否开启新的failback
+     */
+    private boolean newFailback = false;
+    /**
+     * 返回字符串
+     */
+    private String responseStr = "";
+    /**
+     * 调试开关，是否输出调试日志
+     */
+    public boolean debugCode = false;
+    /**
+     * 极验验证API服务状态Session Key
+     */
+    public String gtServerStatusSessionKey = "gt_server_status";
+    /**
+     * 带参数构造函数
+     *
+     * @param captchaId
+     * @param privateKey
+     */
+    public GeetestLib(String captchaId, String privateKey, boolean newFailback) {
+        this.captchaId = captchaId;
+        this.privateKey = privateKey;
+        this.newFailback = newFailback;
+    }
+    /**
+     * 获取本次验证初始化返回字符串
+     *
+     * @return 初始化结果
+     */
+    public String getResponseStr() {
+        return responseStr;
+    }
+    public String getVersionInfo() {
+        return verName;
+    }
+    /**
+     * 预处理失败后的返回格式串
+     *
+     * @return
+     */
+    private String getFailPreProcessRes() {
+        Long rnd1 = Math.round(Math.random() * 100);
+        Long rnd2 = Math.round(Math.random() * 100);
+        String md5Str1 = md5Encode(rnd1 + "");
+        String md5Str2 = md5Encode(rnd2 + "");
+        String challenge = md5Str1 + md5Str2.substring(0, 2);
+        JsonObject jsonObject = new JsonObject();
+        jsonObject.addProperty("success", 0);
+        jsonObject.addProperty("gt", this.captchaId);
+        jsonObject.addProperty("challenge", challenge);
+        jsonObject.addProperty("new_captcha", this.newFailback);
+        return jsonObject.toString();
+    }
+    /**
+     * 预处理成功后的标准串
+     */
+    private String getSuccessPreProcessRes(String challenge) {
+        gtlog("challenge:" + challenge);
+        JsonObject jsonObject = new JsonObject();
+        jsonObject.addProperty("success", 1);
+        jsonObject.addProperty("gt", this.captchaId);
+        jsonObject.addProperty("challenge", challenge);
+        return jsonObject.toString();
+    }
+    /**
+     * 验证初始化预处理
+     *
+     * @return 1表示初始化成功，0表示初始化失败
+     */
+    public int preProcess(HashMap<String, String> data) {
+        if (registerChallenge(data) != 1) {
+            this.responseStr = this.getFailPreProcessRes();
+            return 0;
+        }
+        return 1;
+    }
+    /**
+     * 用captchaID进行注册，更新challenge
+     *
+     * @return 1表示注册成功，0表示注册失败
+     */
+    private int registerChallenge(HashMap<String, String> data) {
+        try {
+            String userId = data.get("user_id");
+            String clientType = data.get("client_type");
+            String ipAddress = data.get("ip_address");
+            String getUrl = apiUrl + registerUrl + "?";
+            String param = "gt=" + this.captchaId + "&json_format=" + this.json_format;
+            if (userId != null) {
+                param = param + "&user_id=" + userId;
+            }
+            if (clientType != null) {
+                param = param + "&client_type=" + clientType;
+            }
+            if (ipAddress != null) {
+                param = param + "&ip_address=" + ipAddress;
+            }
+            gtlog("GET_URL:" + getUrl + param);
+            String result_str = readContentFromGet(getUrl + param);
+            if (result_str == "fail") {
+                gtlog("gtServer register challenge failed");
+                return 0;
+            }
+            gtlog("result:" + result_str);
+            JsonObject jsonObject = new JsonParser().parse(result_str).getAsJsonObject();
+            String return_challenge = jsonObject.get("challenge").isJsonNull() ? "" : jsonObject.get("challenge").getAsString();
+            gtlog("return_challenge:" + return_challenge);
+            if (return_challenge.length() == 32) {
+                this.responseStr = this.getSuccessPreProcessRes(this.md5Encode(return_challenge + this.privateKey));
+                return 1;
+            } else {
+                gtlog("gtServer register challenge error");
+                return 0;
+            }
+        } catch (Exception e) {
+            gtlog(e.toString());
+            gtlog("exception:register api");
+        }
+        return 0;
+    }
+    /**
+     * 判断一个表单对象值是否为空
+     *
+     * @param gtObj
+     * @return
+     */
+    protected boolean objIsEmpty(Object gtObj) {
+        if (gtObj == null) {
+            return true;
+        }
+        if (gtObj.toString().trim().length() == 0) {
+            return true;
+        }
+        return false;
+    }
+    /**
+     * 检查客户端的请求是否合法,三个只要有一个为空，则判断不合法
+     *
+     * @return
+     */
+    private boolean resquestIsLegal(String challenge, String validate, String seccode) {
+        if (objIsEmpty(challenge)) {
+            return false;
+        }
+        if (objIsEmpty(validate)) {
+            return false;
+        }
+        if (objIsEmpty(seccode)) {
+            return false;
+        }
+        return true;
+    }
+    /**
+     * 服务正常的情况下使用的验证方式,向gt-server进行二次验证,获取验证结果
+     *
+     * @param challenge
+     * @param validate
+     * @param seccode
+     * @return 验证结果, 1表示验证成功0表示验证失败
+     */
+    public int enhencedValidateRequest(String challenge, String validate, String seccode, HashMap<String, String> data) {
+        if (!resquestIsLegal(challenge, validate, seccode)) {
+            return 0;
+        }
+        gtlog("request legitimate");
+        String userId = data.get("user_id");
+        String clientType = data.get("client_type");
+        String ipAddress = data.get("ip_address");
+        String postUrl = this.apiUrl + this.validateUrl;
+        String param = String.format("challenge=%s&validate=%s&seccode=%s&json_format=%s",
+                challenge, validate, seccode, this.json_format);
+        if (userId != null) {
+            param = param + "&user_id=" + userId;
+        }
+        if (clientType != null) {
+            param = param + "&client_type=" + clientType;
+        }
+        if (ipAddress != null) {
+            param = param + "&ip_address=" + ipAddress;
+        }
+        gtlog("param:" + param);
+        String response = "";
+        try {
+            if (validate.length() <= 0) {
+                return 0;
+            }
+            if (!checkResultByPrivate(challenge, validate)) {
+                return 0;
+            }
+            gtlog("checkResultByPrivate");
+            response = readContentFromPost(postUrl, param);
+            gtlog("response: " + response);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        String return_seccode = "";
+        JsonObject return_map = new JsonParser().parse(response).getAsJsonObject();
+        return_seccode = return_map.get("seccode").isJsonNull() ? "" : return_map.get("seccode").getAsString();
+        gtlog("md5: " + md5Encode(return_seccode));
+        if (return_seccode.equals(md5Encode(seccode))) {
+            return 1;
+        } else {
+            return 0;
+        }
+    }
+    /**
+     * failback使用的验证方式
+     *
+     * @param challenge
+     * @param validate
+     * @param seccode
+     * @return 验证结果, 1表示验证成功0表示验证失败
+     */
+    public int failbackValidateRequest(String challenge, String validate, String seccode) {
+        gtlog("in failback validate");
+        if (!resquestIsLegal(challenge, validate, seccode)) {
+            return 0;
+        }
+        gtlog("request legitimate");
+        return 1;
+    }
+    /**
+     * 输出debug信息，需要开启debugCode
+     *
+     * @param message
+     */
+    public void gtlog(String message) {
+        if (debugCode) {
+            System.out.println("gtlog: " + message);
+        }
+    }
+    protected boolean checkResultByPrivate(String challenge, String validate) {
+        String encodeStr = md5Encode(privateKey + "geetest" + challenge);
+        return validate.equals(encodeStr);
+    }
+    /**
+     * 发送GET请求，获取服务器返回结果
+     *
+     * @param URL
+     * @return 服务器返回结果
+     * @throws IOException
+     */
+    private String readContentFromGet(String URL) throws IOException {
+        URL getUrl = new URL(URL);
+        HttpURLConnection connection = (HttpURLConnection) getUrl
+                .openConnection();
+        connection.setConnectTimeout(2000);// 设置连接主机超时（单位：毫秒）
+        connection.setReadTimeout(2000);// 设置从主机读取数据超时（单位：毫秒）
+        // 建立与服务器的连接，并未发送数据
+        connection.connect();
+        if (connection.getResponseCode() == 200) {
+            // 发送数据到服务器并使用Reader读取返回的数据
+            StringBuffer sBuffer = new StringBuffer();
+            InputStream inStream = null;
+            byte[] buf = new byte[1024];
+            inStream = connection.getInputStream();
+            for (int n; (n = inStream.read(buf)) != -1; ) {
+                sBuffer.append(new String(buf, 0, n, "UTF-8"));
+            }
+            inStream.close();
+            connection.disconnect();// 断开连接
+            return sBuffer.toString();
+        } else {
+            return "fail";
+        }
+    }
+    /**
+     * 发送POST请求，获取服务器返回结果
+     *
+     * @return 服务器返回结果
+     * @throws IOException
+     */
+    private String readContentFromPost(String URL, String data) throws IOException {
+        gtlog(data);
+        URL postUrl = new URL(URL);
+        HttpURLConnection connection = (HttpURLConnection) postUrl
+                .openConnection();
+        connection.setConnectTimeout(2000);// 设置连接主机超时（单位：毫秒）
+        connection.setReadTimeout(2000);// 设置从主机读取数据超时（单位：毫秒）
+        connection.setRequestMethod("POST");
+        connection.setDoInput(true);
+        connection.setDoOutput(true);
+        connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+        // 建立与服务器的连接，并未发送数据
+        connection.connect();
+        OutputStreamWriter outputStreamWriter = new OutputStreamWriter(connection.getOutputStream(), "utf-8");
+        outputStreamWriter.write(data);
+        outputStreamWriter.flush();
+        outputStreamWriter.close();
+        if (connection.getResponseCode() == 200) {
+            // 发送数据到服务器并使用Reader读取返回的数据
+            StringBuffer sBuffer = new StringBuffer();
+            InputStream inStream = null;
+            byte[] buf = new byte[1024];
+            inStream = connection.getInputStream();
+            for (int n; (n = inStream.read(buf)) != -1; ) {
+                sBuffer.append(new String(buf, 0, n, "UTF-8"));
+            }
+            inStream.close();
+            connection.disconnect();// 断开连接
+            return sBuffer.toString();
+        } else {
+            return "fail";
+        }
+    }
+    /**
+     * md5 加密
+     *
+     * @param plainText
+     * @return
+     * @time 2014年7月10日 下午3:30:01
+     */
+    private String md5Encode(String plainText) {
+        String re_md5 = new String();
+        try {
+            MessageDigest md = MessageDigest.getInstance("MD5");
+            md.update(plainText.getBytes());
+            byte b[] = md.digest();
+            int i;
+            StringBuffer buf = new StringBuffer("");
+            for (int offset = 0; offset < b.length; offset++) {
+                i = b[offset];
+                if (i < 0)
+                    i += 256;
+                if (i < 16)
+                    buf.append("0");
+                buf.append(Integer.toHexString(i));
+            }
+            re_md5 = buf.toString();
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        }
+        return re_md5;
+    }
+}
+package com.goli.authplatform.utils;
+import com.goli.authplatform.config.MailConfig;
+import com.sun.mail.util.MailSSLSocketFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.mail.javamail.JavaMailSenderImpl;
+import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.stereotype.Component;
+import javax.mail.internet.MimeMessage;
+import java.io.File;
+import java.security.GeneralSecurityException;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+@Component
+public class MailUtil {
+    @Autowired
+    private MailConfig mailConfig;
+    public boolean Send(String []toAddress, String[] ccAddress, String title, String content, List<Map<String,String>> attachFiles)
+    {
+        boolean flag = true;
+        try {
+            System.out.println(mailConfig);
+            JavaMailSenderImpl javaMailSender = new JavaMailSenderImpl();
+            javaMailSender.setHost(mailConfig.getHost());
+            javaMailSender.setUsername(mailConfig.getAuthName());
+            javaMailSender.setPassword(mailConfig.getPassword());
+            javaMailSender.setDefaultEncoding(mailConfig.getCharset());
+            javaMailSender.setProtocol(mailConfig.getProtocol());
+            javaMailSender.setPort(mailConfig.getPort());
+            Properties properties = new Properties();
+            properties.setProperty("mail.smtp.auth", mailConfig.getAuth());
+            properties.setProperty("mail.smtp.timeout", mailConfig.getTimeout());
+            if(mailConfig.isSSL()){
+                MailSSLSocketFactory sf = null;
+                try {
+                    sf = new MailSSLSocketFactory();
+                    sf.setTrustAllHosts(true);
+                    properties.put("mail.smtp.ssl.enable", "true");
+                    properties.put("mail.smtp.ssl.socketFactory", sf);
+                } catch (GeneralSecurityException e) {
+                    e.printStackTrace();
+                }
+            }
+            javaMailSender.setJavaMailProperties(properties);
+            MimeMessage mailMessage = javaMailSender.createMimeMessage();
+            MimeMessageHelper messageHelper = new MimeMessageHelper(mailMessage, true);
+            messageHelper.setTo(toAddress);
+            if (ccAddress != null && ccAddress.length > 0) {
+                messageHelper.setCc(ccAddress);
+            }
+            messageHelper.setFrom(mailConfig.getAuthName());
+            messageHelper.setSubject(title);
+            messageHelper.setText(content, true);
+            if (attachFiles != null && attachFiles.size() > 0) {
+                for (Map<String, String> attachfile : attachFiles) {
+                    String attachfileName = attachfile.get("name");
+                    File file = new File(attachfile.get("file"));
+                    messageHelper.addAttachment(attachfileName, file);
+                }
+            }
+            javaMailSender.send(mailMessage);
+        } catch (Exception e) {
+            flag = false;
+            e.printStackTrace();
+        }
+        return flag;
+    }
+}
+package com.goli.authplatform.utils;
+import lombok.Getter;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
+@Component
+@Getter
+public final class RedisUtil {
+    @Autowired
+    private RedisTemplate<String, Object> redisTemplate;
+    // =============================common============================
+    /**
+     * 指定缓存失效时间
+     * @param key 键
+     * @param time 时间(秒)
+     * @return
+     */
+    public boolean expire(String key, long time) {
+        try {
+            if (time > 0) {
+                redisTemplate.expire(key, time, TimeUnit.SECONDS);
+            }
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+    /**
+     * 根据key 获取过期时间
+     * @param key 键 不能为null
+     * @return 时间(秒) 返回0代表为永久有效
+     */
+    public long getExpire(String key) {
+        return redisTemplate.getExpire(key, TimeUnit.SECONDS);
+    }
+    /**
+     * 判断key是否存在
+     * @param key 键
+     * @return true 存在 false不存在
+     */
+    public boolean hasKey(String key) {
+        try {
+            return redisTemplate.hasKey(key);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+    /**
+     * 删除缓存
+     * @param key 可以传一个值 或多个
+     */
+    @SuppressWarnings("unchecked")
+    public void del(String... key) {
+        if (key != null && key.length > 0) {
+            if (key.length == 1) {
+                redisTemplate.delete(key[0]);
+            } else {
+                redisTemplate.delete(CollectionUtils.arrayToList(key));
+            }
+        }
+    }
+    // ============================String=============================
+    /**
+     * 普通缓存获取
+     * @param key 键
+     * @return 值
+     */
+    public Object get(String key) {
+        try {
+            return key == null ? null : redisTemplate.opsForValue().get(key);
+        }catch (Exception e){
+            return null;
+        }
+    }
+    /**
+     * 普通缓存放入
+     * @param key 键
+     * @param value 值
+     * @return true成功 false失败
+     */
+    public boolean set(String key, Object value) {
+        try {
+            redisTemplate.opsForValue().set(key, value);
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+    /**
+     * 普通缓存放入并设置时间
+     * @param key 键
+     * @param value 值
+     * @param time 时间(秒) time要大于0 如果time小于等于0 将设置无限期
+     * @return true成功 false 失败
+     */
+    public boolean set(String key, Object value, long time) {
+        try {
+            if (time > 0) {
+                redisTemplate.opsForValue().set(key, value, time, TimeUnit.SECONDS);
+            } else {
+                set(key, value);
+            }
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+    /**
+     * 递增
+     * @param key 键
+     * @param delta 要增加几(大于0)
+     * @return
+     */
+    public long incr(String key, long delta) {
+        if (delta < 0) {
+            throw new RuntimeException("递增因子必须大于0");
+        }
+        return redisTemplate.opsForValue().increment(key, delta);
+    }
+    /**
+     * 递减
+     * @param key 键
+     * @param delta 要减少几(小于0)
+     * @return
+     */
+    public long decr(String key, long delta) {
+        if (delta < 0) {
+            throw new RuntimeException("递减因子必须大于0");
+        }
+        return redisTemplate.opsForValue().increment(key, -delta);
+    }
+    // ================================Map=================================
+    /**
+     * HashGet
+     * @param key 键 不能为null
+     * @param item 项 不能为null
+     * @return 值
+     */
+    public Object hget(String key, String item) {
+        return redisTemplate.opsForHash().get(key, item);
+    }
+    /**
+     * 获取hashKey对应的所有键值
+     * @param key 键
+     * @return 对应的多个键值
+     */
+    public Map<Object, Object> hmget(String key) {
+        return redisTemplate.opsForHash().entries(key);
+    }
+    /**
+     * HashSet
+     * @param key 键
+     * @param map 对应多个键值
+     * @return true 成功 false 失败
+     */
+    public boolean hmset(String key, Map<String, Object> map) {
+        try {
+            redisTemplate.opsForHash().putAll(key, map);
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+    /**
+     * HashSet 并设置时间
+     * @param key 键
+     * @param map 对应多个键值
+     * @param time 时间(秒)
+     * @return true成功 false失败
+     */
+    public boolean hmset(String key, Map<String, Object> map, long time) {
+        try {
+            redisTemplate.opsForHash().putAll(key, map);
+            if (time > 0) {
+                expire(key, time);
+            }
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+    /**
+     * 向一张hash表中放入数据,如果不存在将创建
+     * @param key 键
+     * @param item 项
+     * @param value 值
+     * @return true 成功 false失败
+     */
+    public boolean hset(String key, String item, Object value) {
+        try {
+            redisTemplate.opsForHash().put(key, item, value);
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+    /**
+     * 向一张hash表中放入数据,如果不存在将创建
+     * @param key 键
+     * @param item 项
+     * @param value 值
+     * @param time 时间(秒) 注意:如果已存在的hash表有时间,这里将会替换原有的时间
+     * @return true 成功 false失败
+     */
+    public boolean hset(String key, String item, Object value, long time) {
+        try {
+            redisTemplate.opsForHash().put(key, item, value);
+            if (time > 0) {
+                expire(key, time);
+            }
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+    /**
+     * 删除hash表中的值
+     * @param key 键 不能为null
+     * @param item 项 可以使多个 不能为null
+     */
+    public void hdel(String key, Object... item) {
+        redisTemplate.opsForHash().delete(key, item);
+    }
+    /**
+     * 判断hash表中是否有该项的值
+     * @param key 键 不能为null
+     * @param item 项 不能为null
+     * @return true 存在 false不存在
+     */
+    public boolean hHasKey(String key, String item) {
+        return redisTemplate.opsForHash().hasKey(key, item);
+    }
+    /**
+     * hash递增 如果不存在,就会创建一个 并把新增后的值返回
+     * @param key 键
+     * @param item 项
+     * @param by 要增加几(大于0)
+     * @return
+     */
+    public double hincr(String key, String item, double by) {
+        return redisTemplate.opsForHash().increment(key, item, by);
+    }
+    /**
+     * hash递减
+     * @param key 键
+     * @param item 项
+     * @param by 要减少记(小于0)
+     * @return
+     */
+    public double hdecr(String key, String item, double by) {
+        return redisTemplate.opsForHash().increment(key, item, -by);
+    }
+    // ============================set=============================
+    /**
+     * 根据key获取Set中的所有值
+     * @param key 键
+     * @return
+     */
+    public Set<Object> sGet(String key) {
+        try {
+            return redisTemplate.opsForSet().members(key);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+    /**
+     * 根据value从一个set中查询,是否存在
+     * @param key 键
+     * @param value 值
+     * @return true 存在 false不存在
+     */
+    public boolean sHasKey(String key, Object value) {
+        try {
+            return redisTemplate.opsForSet().isMember(key, value);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+    /**
+     * 将数据放入set缓存
+     * @param key 键
+     * @param values 值 可以是多个
+     * @return 成功个数
+     */
+    public long sSet(String key, Object... values) {
+        try {
+            return redisTemplate.opsForSet().add(key, values);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return 0;
+        }
+    }
+    /**
+     * 将set数据放入缓存
+     * @param key 键
+     * @param time 时间(秒)
+     * @param values 值 可以是多个
+     * @return 成功个数
+     */
+    public long sSetAndTime(String key, long time, Object... values) {
+        try {
+            Long count = redisTemplate.opsForSet().add(key, values);
+            if (time > 0)
+            expire(key, time);
+            return count;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return 0;
+        }
+    }
+    /**
+     * 获取set缓存的长度
+     * @param key 键
+     * @return
+     */
+    public long sGetSetSize(String key) {
+        try {
+            return redisTemplate.opsForSet().size(key);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return 0;
+        }
+    }
+    /**
+     * 移除值为value的
+     * @param key 键
+     * @param values 值 可以是多个
+     * @return 移除的个数
+     */
+    public long setRemove(String key, Object... values) {
+        try {
+            Long count = redisTemplate.opsForSet().remove(key, values);
+            return count;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return 0;
+        }
+    }
+    // ===============================list=================================
+    /**
+     * 获取list缓存的内容
+     * @param key 键
+     * @param start 开始
+     * @param end 结束 0 到 -1代表所有值
+     * @return
+     */
+    public List<Object> lGet(String key, long start, long end) {
+        try {
+            return redisTemplate.opsForList().range(key, start, end);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+    /**
+     * 获取list缓存的长度
+     * @param key 键
+     * @return
+     */
+    public long lGetListSize(String key) {
+        try {
+            return redisTemplate.opsForList().size(key);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return 0;
+        }
+    }
+    /**
+     * 通过索引 获取list中的值
+     * @param key 键
+     * @param index 索引 index>=0时， 0 表头，1 第二个元素，依次类推；index<0时，-1，表尾，-2倒数第二个元素，依次类推
+     * @return
+     */
+    public Object lGetIndex(String key, long index) {
+        try {
+            return redisTemplate.opsForList().index(key, index);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+    /**
+     * 将list放入缓存
+     * @param key 键
+     * @param value 值
+     * @return
+     */
+    public boolean lSet(String key, Object value) {
+        try {
+            redisTemplate.opsForList().rightPush(key, value);
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+    /**
+     * 将list放入缓存
+     * @param key 键
+     * @param value 值
+     * @param time 时间(秒)
+     * @return
+     */
+    public boolean lSet(String key, Object value, long time) {
+        try {
+            redisTemplate.opsForList().rightPush(key, value);
+            if (time > 0)
+            expire(key, time);
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+    /**
+     * 将list放入缓存
+     * @param key 键
+     * @param value 值
+     * @return
+     */
+    public boolean lSet(String key, List<Object> value) {
+        try {
+            redisTemplate.opsForList().rightPushAll(key, value);
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+    /**
+     * 将list放入缓存
+     *
+     * @param key 键
+     * @param value 值
+     * @param time 时间(秒)
+     * @return
+     */
+    public boolean lSet(String key, List<Object> value, long time) {
+        try {
+            redisTemplate.opsForList().rightPushAll(key, value);
+            if (time > 0)
+            expire(key, time);
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+    /**
+     * 根据索引修改list中的某条数据
+     * @param key 键
+     * @param index 索引
+     * @param value 值
+     * @return
+     */
+    public boolean lUpdateIndex(String key, long index, Object value) {
+        try {
+            redisTemplate.opsForList().set(key, index, value);
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+    /**
+     * 移除N个值为value
+     * @param key 键
+     * @param count 移除多少个
+     * @param value 值
+     * @return 移除的个数
+     */
+    public long lRemove(String key, long count, Object value) {
+        try {
+            Long remove = redisTemplate.opsForList().remove(key, count, value);
+            return remove;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return 0;
+        }
+    }
+}
+package com.goli.authplatform.utils;
+import com.aliyuncs.DefaultAcsClient;
+import com.aliyuncs.IAcsClient;
+import com.aliyuncs.dysmsapi.model.v20170525.SendSmsRequest;
+import com.aliyuncs.dysmsapi.model.v20170525.SendSmsResponse;
+import com.aliyuncs.exceptions.ClientException;
+import com.aliyuncs.profile.DefaultProfile;
+import com.aliyuncs.profile.IClientProfile;
+import com.goli.authplatform.config.SMSConfig;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+@Component
+public class SMSUtil {
+    @Autowired
+    private SMSConfig messageConfig;
+    public boolean Send(String content, String toPhone) {
+        boolean result = true;
+        System.out.println(messageConfig);
+        try {
+            System.setProperty("sun.net.client.defaultConnectTimeout", messageConfig.getTimeOut());
+            System.setProperty("sun.net.client.defaultReadTimeout", messageConfig.getTimeOut());
+            IClientProfile profile = DefaultProfile.getProfile("cn-hangzhou", messageConfig.getAccessKeyId(), messageConfig.getAccessKeySecret());
+            DefaultProfile.addEndpoint("cn-hangzhou", "cn-hangzhou", messageConfig.getProduct(), messageConfig.getDomain());
+            IAcsClient acsClient = new DefaultAcsClient(profile);
+            SendSmsRequest request = new SendSmsRequest();
+            //必填:待发送手机号
+            request.setPhoneNumbers(toPhone);
+            //必填:短信签名-可在短信控制台中找到
+            request.setSignName("智学");
+            //必填:短信模板-可在短信控制台中找到
+            request.setTemplateCode(messageConfig.getMsgTemplateID());
+            //可选:模板中的变量替换JSON串
+            request.setTemplateParam("{\"code\":\""+content+"\"}");
+            SendSmsResponse sendSmsResponse = acsClient.getAcsResponse(request);
+            if(!"OK".equals(sendSmsResponse.getCode()))
+                result = false;
+            else
+                System.out.println(sendSmsResponse.getMessage());
+        } catch (ClientException e) {
+            result = false;
+            e.printStackTrace();
+        }
+        return result;
+    }
+}
+package com.goli.authplatform.webapi;
+import com.goli.authplatform.bo.NotifySendType;
+import com.goli.authplatform.bo.NotifyType;
+import com.goli.authplatform.common.AuthCheck;
+import com.goli.authplatform.common.AuthType;
+import com.goli.authplatform.common.WebApiResult;
+import com.goli.authplatform.common.WebApiSubResultCode;
+import com.goli.authplatform.service.SchoolService;
+import com.goli.authplatform.service.TemplateService;
+import com.goli.authplatform.utils.EncodeUtils;
+import lombok.Getter;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
+@RestController
+@RequestMapping("/api/admin/")
+public class AdminApi {
+    @Autowired
+    private SchoolService schoolService;
+    @Autowired
+    private TemplateService templateService;
+    @RequestMapping("addSchool")
+    @AuthCheck(authType = AuthType.Admin)
+    public WebApiResult addSchool(String schoolName){
+        schoolService.addSchool(schoolName);
+        return WebApiResult.success(null);
+    }
+    @RequestMapping("addTemplate")
+    @AuthCheck(authType = AuthType.Admin)
+    public WebApiResult addTemplate(NotifyType notifyType, NotifySendType notifySendType, String title, String value){
+        return WebApiResult.success(templateService.addTemplate(notifyType,notifySendType,title,value));
+    }
+    @RequestMapping("deleteTemplate")
+    @AuthCheck(authType = AuthType.Admin)
+    public WebApiResult deleteTemplate(NotifyType notifyType,NotifySendType notifySendType){
+        templateService.deleteTemplate(notifyType,notifySendType);
+        return WebApiResult.success(null);
+    }
+    @RequestMapping("getAllTemplate")
+    @AuthCheck(authType = AuthType.Admin)
+    public WebApiResult getAllTemplate(){
+        return WebApiResult.success(templateService.getAllTemplates());
+    }
+    @RequestMapping("updateTemplate")
+    @AuthCheck(authType = AuthType.Admin)
+    public WebApiResult updateTemplate(NotifyType notifyType,NotifySendType sendType,String newTitle,String newValue){
+        templateService.updateTemplate(notifyType,sendType,newTitle,newValue);
+        return WebApiResult.success(null);
+    }
+}
+package com.goli.authplatform.webapi;
+import com.goli.authplatform.common.AuthCheck;
+import com.goli.authplatform.common.AuthType;
+import com.goli.authplatform.common.WebApiResult;
+import com.goli.authplatform.model.SupportSchoolEntity;
+import com.goli.authplatform.service.GeeTestService;
+import com.goli.authplatform.service.SchoolService;
+import com.goli.authplatform.utils.CommonUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+import java.util.List;
+@RestController
+@RequestMapping("/api/common")
+public class CommonApi {
+    @Autowired
+    CommonUtils commonUtils;
+    @Autowired
+    GeeTestService geeTestService;
+    @Autowired
+    SchoolService schoolService;
+    @RequestMapping(value = "geeTestStartCheck",method = RequestMethod.POST)
+    @ResponseBody
+    public WebApiResult geeTestStartCheck(String userID, String clientType, HttpServletRequest request, HttpSession session) {
+        String ipAddress = commonUtils.GetIpAddress(request);
+        return WebApiResult.success(geeTestService.FirstCheck(userID, clientType, ipAddress, session));
+    }
+    @RequestMapping(value = "getSupportSchool")
+    @AuthCheck(authType = AuthType.Student)
+    public WebApiResult getSupportSchool(String schoolName) {
+        List<SupportSchoolEntity> schools = null;
+        if (schoolName != null && !"".equals(schoolName)) {
+            schools = schoolService.getAllSchools(schoolName);
+        } else {
+            schools = schoolService.getAllSchools();
+        }
+        WebApiResult result = WebApiResult.success(schools);
+        return result;
+    }
+}
+package com.goli.authplatform.webapi;
+import com.goli.authplatform.common.WebApiResult;
+import com.goli.authplatform.service.UserService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
+@RestController
+@RequestMapping("/plat/api/")
+public class PlatApi {
+    @Autowired
+    private UserService userService;
+    @RequestMapping(value = "getAllStudents",method = RequestMethod.GET)
+    public WebApiResult getAllStudentsInfo(){
+        return WebApiResult.success(userService.getAllStudentInfo());
+    }
+}
+Vpackage com.goli.authplatform.webapi;
+import com.goli.authplatform.bo.AccountType;
+import com.goli.authplatform.bo.NotifyType;
+import com.goli.authplatform.bo.UserRichInfo;
+import com.goli.authplatform.common.AuthCheck;
+import com.goli.authplatform.common.AuthType;
+import com.goli.authplatform.common.WebApiResult;
+import com.goli.authplatform.common.WebApiSubResultCode;
+import com.goli.authplatform.dao.ClassTypeDao;
+import com.goli.authplatform.model.ClassTypeEntity;
+import com.goli.authplatform.model.ClassesEntity;
+import com.goli.authplatform.model.UserBaseInfoEntity;
+import com.goli.authplatform.service.CaptchaService;
+import com.goli.authplatform.service.SchoolService;
+import com.goli.authplatform.service.UserService;
+import com.goli.authplatform.utils.CommonUtils;
+import com.goli.authplatform.utils.EncodeUtils;
+import lombok.Getter;
+import org.apache.catalina.User;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
+@RequestMapping("/api/teacher/")
+@RestController
+public class TeacherApi {
+    @Autowired
+    private SchoolService schoolService;
+    @Autowired
+    private UserService userService;
+    @Autowired
+    private CaptchaService captchaService;
+    @Autowired
+    private EncodeUtils encodeUtils;
+    @Autowired
+    private CommonUtils commonUtils;
+    @RequestMapping(value = "createClass", method = RequestMethod.POST)
+    @AuthCheck(authType = AuthType.Teacher)
+    public WebApiResult createClass(String className,int typeId, UserRichInfo richInfo) {
+        ClassTypeEntity classType = schoolService.getClassType(typeId);
+        Object result = "NoType";
+        if(classType!=null)
+            result = schoolService.createClass(richInfo, className, classType);
+        return WebApiResult.success(result);
+    }
+    @RequestMapping(value = "getClassType", method = RequestMethod.GET)
+    @AuthCheck(authType = AuthType.Teacher)
+    public WebApiResult getClassType() {
+        return WebApiResult.success(schoolService.getAllClassTypes());
+    }
+    @RequestMapping(value = "getClassInfo", method = RequestMethod.GET)
+    @AuthCheck(authType = AuthType.Teacher)
+    public WebApiResult getClassInfo(Integer authUserID) {
+        return WebApiResult.success(userService.getTeachedClass(authUserID));
+    }
+    @RequestMapping(value = "getClassStudents", method = RequestMethod.GET)
+    @AuthCheck(authType = AuthType.Teacher)
+    public WebApiResult getClassStudents(int classID,UserRichInfo userInfo) {
+        Object result = "NoAuth";
+        ClassesEntity classInfo = schoolService.getClassInfo(classID);
+        if (classInfo.getTeacherId() == userInfo.getUserId()) {
+            result = schoolService.getClassStudents(classID);
+        }
+        return WebApiResult.success(result);
+    }
+    @Getter
+    enum EditClassResult implements WebApiSubResultCode {
+        SUCCESS(0, "成功"),
+        NO_AUTH(1, "无法修改其他人的班级信息"),
+        UNEXIST(2, "班级不存在"),
+        HAS_JOINED(3,"学生已存在该班级中"),
+        ;
+        EditClassResult(int _code, String _msg) {
+            this.code = _code;
+            this.msg = _msg;
+        }
+        private int code;
+        private String msg;
+    }
+    @RequestMapping(value = "deleteClass", method = RequestMethod.DELETE)
+    @AuthCheck(authType = AuthType.Teacher)
+    public WebApiResult deleteClass(int classID, Integer authUserID) {
+        WebApiResult result = WebApiResult.success(null);
+        ClassesEntity classInfo = schoolService.getClassInfo(classID);
+        if (classInfo.getTeacherId() == authUserID) {
+            schoolService.deleteClass(classInfo);
+            result.setSubResult(EditClassResult.SUCCESS);
+        } else {
+            result.setSubResult(EditClassResult.NO_AUTH);
+        }
+        return result;
+    }
+    @RequestMapping(value = "removeStudent", method = RequestMethod.DELETE)
+    @AuthCheck(authType = AuthType.Teacher)
+    public WebApiResult deleteClass(int classID, int studentId, UserRichInfo userRichInfo) {
+        WebApiResult result = WebApiResult.success(null);
+        ClassesEntity classInfo = schoolService.getClassInfo(classID);
+        if (classInfo.getTeacherId() == userRichInfo.getUserId()) {
+            schoolService.KickedClass(studentId, classInfo);
+            result.setSubResult(EditClassResult.SUCCESS);
+        } else {
+            result.setSubResult(EditClassResult.NO_AUTH);
+        }
+        return result;
+    }
+    @RequestMapping(value = "inviteStudent", method = RequestMethod.POST)
+    @AuthCheck(authType = AuthType.Teacher)
+    public WebApiResult inviteStudent(int studentID, int classID, Integer authUserID) {
+        UserRichInfo userRichInfo = userService.getUserRichInfo(authUserID);
+        WebApiResult result = WebApiResult.success(null);
+        result.setSubResult(EditClassResult.NO_AUTH);
+        if (userRichInfo.getJoinedClass().keySet().contains(classID)) {
+            ClassesEntity classInfo = schoolService.getClassInfo(classID);
+            if (classInfo != null) {
+                UserRichInfo studentInfo = userService.getUserRichInfo(studentID);
+                if(studentInfo.getJoinedClass().containsKey(classID)){
+                    result.setSubResult(EditClassResult.HAS_JOINED);
+                }else{
+                    schoolService.inviteStudent(studentInfo,classInfo,userRichInfo);
+                    result.setSubResult(EditClassResult.SUCCESS);
+                }
+            } else {
+                result.setSubResult(EditClassResult.UNEXIST);
+            }
+        }
+        return result;
+    }
+    @RequestMapping(value = "SendRegisterCode", method = RequestMethod.GET)
+    public WebApiResult SendForgetCode(String loginID) {
+        return captchaService.SendCodeCommon(loginID, true, false, NotifyType.REGISTER_CODE);
+    }
+    @Getter
+    enum RegisterWithCodeResult implements WebApiSubResultCode {
+        SUCCESS(0, "注册成功"),
+        EXIST(1, "用户已存在");
+        RegisterWithCodeResult(int _code, String _msg) {
+            this.code = _code;
+            this.msg = _msg;
+        }
+        private int code;
+        private String msg;
+    }
+    @RequestMapping(value = "registerWithCode", method = RequestMethod.POST)
+    public WebApiResult LoginWithCode(String loginID, String password, String code) {
+        WebApiResult result = WebApiResult.success(null);
+        CaptchaService.CheckCodeResult checkCodeResult = captchaService.CheckCode(loginID, code, NotifyType.REGISTER_CODE, true);
+        result.setSubResult(checkCodeResult);
+        if (checkCodeResult == CaptchaService.CheckCodeResult.RIGHT) {
+            if (userService.CheckNumberExist(loginID)) {
+                result.setSubResult(RegisterWithCodeResult.EXIST);
+            } else {
+                UserBaseInfoEntity teacherInfo = new UserBaseInfoEntity();
+                teacherInfo.setUserPassword(encodeUtils.MD5(password));
+                if(commonUtils.CheckEmail(loginID))
+                    teacherInfo.setUserMail(loginID);
+                else
+                    teacherInfo.setUserPhone(loginID);
+                userService.AddTeacher(teacherInfo);
+                result.setSubResult(RegisterWithCodeResult.SUCCESS);
+            }
+        }
+        return result;
+    }
+}
+package com.goli.authplatform.webapi;
+import com.goli.authplatform.bo.*;
+import com.goli.authplatform.common.AuthCheck;
+import com.goli.authplatform.common.AuthType;
+import com.goli.authplatform.common.WebApiResult;
+import com.goli.authplatform.common.WebApiSubResultCode;
+import com.goli.authplatform.dao.ClassStudentsEntityDao;
+import com.goli.authplatform.model.ClassStudentsEntity;
+import com.goli.authplatform.model.ClassesEntity;
+import com.goli.authplatform.model.SupportSchoolEntity;
+import com.goli.authplatform.model.UserBaseInfoEntity;
+import com.goli.authplatform.service.CaptchaService;
+import com.goli.authplatform.service.SchoolService;
+import com.goli.authplatform.service.UserService;
+import com.goli.authplatform.utils.CommonUtils;
+import com.goli.authplatform.utils.EncodeUtils;
+import lombok.Getter;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+@RestController
+@RequestMapping("/api/user/")
+public class UserApi {
+    @Autowired
+    private CommonUtils commonUtils;
+    @Autowired
+    private UserService userService;
+    @Autowired
+    private EncodeUtils encodeUtils;
+    @Autowired
+    private CaptchaService captchaService;
+    @Autowired
+    private SchoolService schoolService;
+    // <editor-fold desc="账户登录和修改信息">
+    @Getter
+    enum LoginResult implements WebApiSubResultCode {
+        SUCCESS(0, "成功登录"),
+        ERROR_PASSWORD(1, "密码错误"),
+        UNEXIST(2, "用户不存在"),
+        ERROR_WECHAT_CODE(3, "微信code错误"),
+        ERROR_CODE(4, "验证码错误"),
+        SYSTEM_BUSY(5, "系统繁忙"),
+        ;
+        LoginResult(int _code, String _msg) {
+            this.code = _code;
+            this.msg = _msg;
+        }
+        private int code;
+        private String msg;
+    }
+    @RequestMapping(value = "login", method = RequestMethod.POST)
+    public WebApiResult Login(String loginID, String password) {
+        WebApiResult result = WebApiResult.success(null);
+        result.setSubResult(LoginResult.UNEXIST);
+        UserBaseInfoEntity userBaseInfoEntity = userService.GetUserInfoByLoginID(loginID);
+        if (userBaseInfoEntity != null) {
+            password = encodeUtils.MD5(password);
+            if (userBaseInfoEntity.getUserPassword().equals(password)) {
+                result.setSubResult(LoginResult.SUCCESS);
+                userService.RefreshLoginCache(loginID, userBaseInfoEntity);
+                result.setData(userService.getUserRichInfo(userBaseInfoEntity.getUserId()));
+                String sessionID = userService.getLoginSessionIdWithShortTimeOut(userBaseInfoEntity.getUserId());
+                result.setSessionID(sessionID);//设置创建的sessionID
+            } else {
+                result.setSubResult(LoginResult.ERROR_PASSWORD);
+            }
+        }
+        return result;
+    }
+    @RequestMapping(value = "loginWithWeChat", method = RequestMethod.GET)
+    public WebApiResult Login(String weChatSessionKey) {
+        WebApiResult result = WebApiResult.success(null);
+        UserBaseInfoEntity userBaseInfoEntity = userService.GetUserInfoByWeChatCode(weChatSessionKey);
+        if (userBaseInfoEntity != null) {
+            result.setSubResult(LoginResult.SUCCESS);
+            result.setData(userService.getUserRichInfo(userBaseInfoEntity.getUserId()));
+            result.setSessionID(userService.getLoginSessionIdWithShortTimeOut(userBaseInfoEntity.getUserId()));
+        } else {
+            result.setSubResult(LoginResult.SYSTEM_BUSY);
+        }
+        return result;
+    }
+    @Getter
+    enum EditPasswordResult implements WebApiSubResultCode {
+        SUCCESS(0, "修改成功"),
+        ERROR_PASSWORD(1, "旧密码错误"),
+        SAME_PASSWORD(2, "新旧密码相同");
+        EditPasswordResult(int _code, String _msg) {
+            this.code = _code;
+            this.msg = _msg;
+        }
+        private int code;
+        private String msg;
+    }
+    @RequestMapping(value = "editPassword", method = RequestMethod.PUT)
+    @AuthCheck(authType = AuthType.Student)
+    public WebApiResult EditPassword(Integer authUserID, String oldPassword, String newPassword) {
+        WebApiResult result = WebApiResult.success(null);
+        UserBaseInfoEntity userBaseInfoEntity = userService.getUserInfo(authUserID);
+        oldPassword = encodeUtils.MD5(oldPassword);
+        if (userBaseInfoEntity.getUserPassword() == null || oldPassword.equals(userBaseInfoEntity.getUserPassword())) {
+            newPassword = encodeUtils.MD5(newPassword);
+            if (userBaseInfoEntity.getUserPassword() != null && newPassword.equals(oldPassword)) {
+                result.setSubResult(EditPasswordResult.SAME_PASSWORD);
+            } else {
+                userBaseInfoEntity.setUserPassword(newPassword);
+                userService.updateUserInfo(userBaseInfoEntity);
+                result.setSubResult(EditPasswordResult.SUCCESS);
+            }
+        } else {
+            result.setSubResult(EditPasswordResult.ERROR_PASSWORD);
+        }
+        return result;
+    }
+    @Getter
+    enum BindingSchoolResult implements WebApiSubResultCode {
+        SUCCESS(0, "绑定成功"),
+        EXIST_SCHOOL(1, "已绑定学校"),
+        NO_SCHOOL(2, "学校不存在"),
+        EXIST_STUDENT_NUMBER(3, "学号已被绑定过"),
+        ;
+        BindingSchoolResult(int _code, String _msg) {
+            this.code = _code;
+            this.msg = _msg;
+        }
+        private int code;
+        private String msg;
+    }
+    @RequestMapping(value = "bindingSchool", method = RequestMethod.PUT)
+    @AuthCheck(authType = AuthType.Student)
+    public WebApiResult bindingSchool(Integer authUserID, int schoolID, String realName, String studentNumber) {
+        WebApiResult result = WebApiResult.success(null);
+        UserBaseInfoEntity userBaseInfoEntity = userService.getUserInfo(authUserID);
+        if (userBaseInfoEntity.getUserSchoolId() == null) {
+            SupportSchoolEntity school = schoolService.getSchool(schoolID);
+            if (school != null) {
+                if (userService.checkStudentNumber(schoolID, studentNumber)) {
+                    userBaseInfoEntity.setUserSchoolId(schoolID);
+                    userBaseInfoEntity.setUserSchoolName(school.getSchoolName());
+                    userBaseInfoEntity.setUserName(realName);
+                    userBaseInfoEntity.setUserSchoolUniqueId(studentNumber);
+                    userBaseInfoEntity.setUserStatus(AccountStatus.NORMAL);
+                    userService.updateUserInfo(userBaseInfoEntity);
+                    result.setSubResult(BindingSchoolResult.SUCCESS);
+                }else{
+                    result.setSubResult(BindingSchoolResult.EXIST_STUDENT_NUMBER);
+                }
+            } else {
+                result.setSubResult(BindingSchoolResult.NO_SCHOOL);
+            }
+        } else {
+            result.setSubResult(BindingSchoolResult.EXIST_SCHOOL);
+        }
+        return result;
+    }
+    /**
+     * 获取本人信息
+     *
+     * @param authUserID AOP自动注入的参数,学生ID
+     * @return
+     */
+    @RequestMapping(value = "getSelfInfo", method = RequestMethod.GET)
+    @AuthCheck(authType = AuthType.Student)
+    public WebApiResult getSelfInfo(Integer authUserID) {
+        return WebApiResult.success(userService.getUserRichInfo(authUserID));
+    }
+    // </editor-fold>
+    // <editor-fold desc="发送验证码">
+    @RequestMapping(value = "SendBindingCode", method = RequestMethod.GET)
+    @AuthCheck(authType = AuthType.Student)
+    public WebApiResult SendBindingCode(UserRichInfo userRichInfo, String bindingID) {
+        boolean needUnExist = true;
+        boolean needExist = false;
+        if (userRichInfo.getUserStatus() == AccountStatus.NOT_ACTIVE && userRichInfo.getUserPhone() == null && userRichInfo.getUserMail() == null) {
+            if (userService.CheckNumberExist(bindingID)) {
+                if (userService.GetUserInfoByLoginID(bindingID).getUserType() == AccountType.Student) {
+                    needUnExist = false;
+                    needExist = false;
+                }
+            }
+        }
+        return captchaService.SendCodeCommon(bindingID, needUnExist, needExist, NotifyType.BINDING_CODE);
+    }
+    @RequestMapping(value = "SendLoginCode", method = RequestMethod.GET)
+    public WebApiResult SendLoginCode(String loginID, int sure_protocol, int isteacher) {
+        if (!userService.CheckNumberExist(loginID)) {
+            if (sure_protocol == 1) {
+                UserBaseInfoEntity userInfo = new UserBaseInfoEntity();
+                if (commonUtils.CheckEmail(loginID))
+                    userInfo.setUserMail(loginID);
+                else
+                    userInfo.setUserPhone(loginID);
+                if (isteacher == 0)
+                    userService.AddStudent(userInfo);
+                else
+                    userService.AddTeacher(userInfo);
+            }
+        }
+        return captchaService.SendCodeCommon(loginID, false, true, NotifyType.LOGIN_CODE);
+    }//这是干什么的呢，为什么在数据库中没有loginID
+    @RequestMapping(value = "SendForgetCode", method = RequestMethod.GET)
+    public WebApiResult SendForgetCode(String loginID) {
+        return captchaService.SendCodeCommon(loginID, false, true, NotifyType.FORGET_CODE);
+    }
+// </editor-fold-->
+    // <editor-fold desc="绑定号码,验证码登录,验证码修改密码">
+    @Getter
+    enum BindingResult implements WebApiSubResultCode {
+        SUCCESS(0, "绑定成功"),
+        EXIST_USER(1, "用户已存在"),
+        TRANSFER_SUCCESS(2, "迁移成功"),
+        TRANSFER_FAIL(3, "迁移失败"),
+        ;
+        BindingResult(int _code, String _msg) {
+            this.code = _code;
+            this.msg = _msg;
+        }
+        private int code;
+        private String msg;
+    }
+    /**
+     * 用户绑定手机号或者邮箱号
+     *
+     * @param bindingID 手机号或者邮箱号
+     * @param code      验证码
+     * @param userInfo  用户信息(AOP注入的参数)
+     * @return
+     */
+    @RequestMapping(value = "bindingNumber", method = RequestMethod.POST)
+    @AuthCheck(authType = AuthType.Student)
+    public WebApiResult BindingNumber(String bindingID, String code, UserRichInfo userInfo) {
+        WebApiResult result = WebApiResult.success(null);
+        CaptchaService.CheckCodeResult checkCodeResult = captchaService.CheckCode(bindingID, code, NotifyType.BINDING_CODE, true);
+        if (checkCodeResult == CaptchaService.CheckCodeResult.RIGHT) {
+            AccountStatus userStatus = userInfo.getUserStatus();
+            boolean numberExist = userService.CheckNumberExist(bindingID);
+            if (userStatus != AccountStatus.NOT_ACTIVE && numberExist)
+                result.setSubResult(BindingResult.EXIST_USER);
+            else {
+                if (userStatus == AccountStatus.NOT_ACTIVE && numberExist) {
+                    UserBaseInfoEntity bindUser = userService.GetUserInfoByLoginID(bindingID);
+                    result.setSubResult(BindingResult.TRANSFER_FAIL);
+                    if (bindUser != null) {
+                        if (bindUser.getUserWechatId() == null) {
+                            bindUser.setUserWechatId(userInfo.getUserWechatId());
+                            userService.updateUserInfo(bindUser);
+                            userService.deleteUser(userInfo.getUserId());
+                            result.setSubResult(BindingResult.TRANSFER_SUCCESS);
+                        }
+                    }
+                } else {//可能更新绑定信息
+                    UserBaseInfoEntity userBaseInfoEntity = userService.getUserInfo(userInfo.getUserId());
+                    String oldNumber;
+                    if (commonUtils.CheckEmail(bindingID)) {
+                        oldNumber = userBaseInfoEntity.getUserMail();
+                        userBaseInfoEntity.setUserMail(bindingID);
+                    } else {
+                        oldNumber = userBaseInfoEntity.getUserPhone();
+                        userBaseInfoEntity.setUserPhone(bindingID);
+                    }
+                    if (!bindingID.equals(oldNumber))
+                        userService.updateUserInfo(userBaseInfoEntity);
+                    result.setSubResult(BindingResult.SUCCESS);
+                }
+            }
+        } else {
+            result.setSubResult(checkCodeResult);
+        }
+        return result;
+    }
+    @Getter
+    enum LoginWithCodeResult implements WebApiSubResultCode {
+        SUCCESS(0, "登录成功"),
+        UN_EXIST(1, "用户不存在");
+        LoginWithCodeResult(int _code, String _msg) {
+            this.code = _code;
+            this.msg = _msg;
+        }
+        private int code;
+        private String msg;
+    }
+    /**
+     * 使用电话号码或者邮箱进行登录
+     *
+     * @param loginID 邮箱或者电话号码
+     * @param code    验证码
+     * @return 登录结果
+     */
+    @RequestMapping(value = "loginWithCode", method = RequestMethod.POST)
+    public WebApiResult LoginWithCode(String loginID, String code) {
+        WebApiResult result = WebApiResult.success(null);
+        CaptchaService.CheckCodeResult checkCodeResult = captchaService.CheckCode(loginID, code, NotifyType.LOGIN_CODE, true);
+        if (checkCodeResult == CaptchaService.CheckCodeResult.RIGHT) {
+            if (userService.CheckNumberExist(loginID)) {
+                UserBaseInfoEntity userBaseInfoEntity = userService.GetUserInfoByLoginID(loginID);
+                String sessionID = userService.getLoginSessionIdWithShortTimeOut(userBaseInfoEntity.getUserId());
+                userService.RefreshLoginCache(loginID, userBaseInfoEntity);
+                result.setData(userService.getUserRichInfo(userBaseInfoEntity.getUserId()));
+                result.setSessionID(sessionID);
+                result.setSubResult(LoginWithCodeResult.SUCCESS);
+            } else {
+                result.setSubResult(LoginWithCodeResult.UN_EXIST);
+            }
+        } else {
+            result.setSubResult(checkCodeResult);
+        }
+        return result;
+    }
+    @Getter
+    enum ResetPasswordResult implements WebApiSubResultCode {
+        SUCCESS(0, "重置成功"),
+        UN_EXIST(1, "账户不存在"),
+        ;
+        ResetPasswordResult(int _code, String _msg) {
+            this.code = _code;
+            this.msg = _msg;
+        }
+        private int code;
+        private String msg;
+    }
+    @RequestMapping(value = "resetPassword", method = RequestMethod.POST)
+    public WebApiResult ResetPassword(String loginID, String code, String newPassword) {
+        WebApiResult result = WebApiResult.success(null);
+        CaptchaService.CheckCodeResult checkCodeResult = captchaService.CheckCode(loginID, code, NotifyType.FORGET_CODE, true);
+        if (checkCodeResult == CaptchaService.CheckCodeResult.RIGHT) {
+            if (userService.CheckNumberExist(loginID)) {
+                UserBaseInfoEntity userBaseInfoEntity = userService.GetUserInfoByLoginID(loginID);
+                userBaseInfoEntity.setUserPassword(encodeUtils.MD5(newPassword));
+                userService.updateUserInfo(userBaseInfoEntity);
+                result.setSubResult(ResetPasswordResult.SUCCESS);
+            } else {
+                result.setSubResult(ResetPasswordResult.UN_EXIST);
+            }
+        }
+        return result;
+    }
+    @RequestMapping(value = "joinClass", method = RequestMethod.POST)
+    @AuthCheck(authType = AuthType.Student)
+    public WebApiResult joinClass(UserRichInfo userInfo, String inviteCode) {
+        String result = "noActive";
+        if(userInfo.getUserStatus()!=AccountStatus.NOT_ACTIVE) {
+            result = "noClass";
+            ClassesEntity classInfo = schoolService.getClassInfoByInviteCode(inviteCode);
+            if (classInfo != null) {
+                result = "differentSchool";
+                if(classInfo.getSchoolId()==userInfo.getUserSchoolId()) {
+                    Set<Integer> joinedClasses = userInfo.getJoinedClass().keySet();
+                    if (joinedClasses.contains(classInfo.getId()))
+                        result = "joined";
+                    else {
+                        schoolService.joinClass(userInfo, classInfo);
+                        result = "success";
+                    }
+                }
+            }
+        }
+        return WebApiResult.success(result);
+    }
+    @RequestMapping(value = "quitClass", method = RequestMethod.DELETE)
+    @AuthCheck(authType = AuthType.Student)
+    public WebApiResult joinClass(UserRichInfo userInfo, int classId) {
+        String result = "noClass";
+        if (userInfo.getJoinedClass().containsKey(classId)) {
+            ClassesEntity classInfo = schoolService.getClassInfo(classId);
+            if (classInfo != null) {
+                schoolService.quitClass(userInfo, classInfo);
+                userInfo.getJoinedClass().remove(classId);
+                userService.updateRichInfo(userInfo);
+                result = "success";
+            }
+        }
+        return WebApiResult.success(result);
+    }
+    // </editor-fold>
+}
+package com.goli.authplatform;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+@SpringBootApplication
+public class AuthplatformApplication {
+    public static void main(String[] args) {
+        SpringApplication.run(AuthplatformApplication.class, args);
+    }
+}

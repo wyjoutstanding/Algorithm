@@ -1,0 +1,4 @@
+Case 1: -a -l
+Case 2:
+Case 3: -w 15 -x
+Case 4: -a -b

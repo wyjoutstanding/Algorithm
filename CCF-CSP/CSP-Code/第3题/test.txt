@@ -1,0 +1,6 @@
+albw:x
+4
+ls -a -l -a documents -b
+ls
+ls -w 10 -x -w 15
+ls -a -b -c -d -e -l
