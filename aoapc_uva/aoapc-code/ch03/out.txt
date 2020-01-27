@@ -1,0 +1,18 @@
+| 例题3-1|UVA272|[ Tex Quotes](# [例题3-1 UVA272 Tex Quotes](https://vjudge.net/problem/UVA-272))| | |
+| 例题3-2|UVA10082|[ WERTYU](# [例题3-2 UVA10082 WERTYU](https://vjudge.net/problem/UVA-10082))| | |
+| 例题3-3|UVA401|[ Palindromes](# [例题3-3 UVA401 Palindromes](https://vjudge.net/problem/UVA-401))| | |
+| 例题3-4|UVA340|[ Master-Mind Hints ](# [例题3-4 UVA340 Master-Mind Hints ](https://vjudge.net/problem/UVA-340))| | |
+| 例题3-5|UVA1583|[ Digit Generator](# [例题3-5 UVA1583 Digit Generator](https://vjudge.net/problem/UVA-1583#author=0))| | |
+| 例题3-6|UVA1584|[ Circular Sequence](# [例题3-6 UVA1584 Circular Sequence](https://vjudge.net/problem/UVA-1584))| | |
+| 习题3-1|UVA1585|[ Score](# [习题3-1 UVA1585 Score](https://vjudge.net/problem/UVA-1585))| | |
+| 习题3-2|UVA1586|[ Molar mass](# [习题3-2 UVA1586 Molar mass](https://vjudge.net/problem/UVA-1586#author=0))| | |
+| 习题3-3|UVA1225|[ Digit Counting](# [习题3-3 UVA1225 Digit Counting](https://vjudge.net/problem/UVA-1225#author=0))| | |
+| 习题3-4|UVA455|[ Periodic Strings](# [习题3-4 UVA455 Periodic Strings](https://vjudge.net/problem/UVA-455))| | |
+| 习题3-5|UVA227|[ Puzzle](# [习题3-5 UVA227 Puzzle](https://vjudge.net/problem/UVA-227))| | |
+| 习题3-6|UVA232|[ Crossword Answers](# [习题3-6 UVA232 Crossword Answers](https://vjudge.net/problem/UVA-232))| | |
+| 习题3-7|UVA1368|[ DNA Consensus String](# [习题3-7 UVA1368 DNA Consensus String](https://vjudge.net/problem/UVA-1368))| | |
+| 习题3-8|UVA202|[ Repeating Decimals](# [习题3-8 UVA202 Repeating Decimals](https://vjudge.net/problem/UVA-202))| | |
+| 习题3-9|UVA10340|[ All in All](# [习题3-9 UVA10340 All in All](https://vjudge.net/problem/UVA-10340))| | |
+| 习题3-10|UVA1587|[ Box](# [习题3-10 UVA1587 Box](https://vjudge.net/problem/UVA-1587#author=0))| | |
+| 习题3-11|UVA1588|[ Kickdown](# [习题3-11 UVA1588 Kickdown](https://vjudge.net/problem/UVA-1588))| | |
+| 习题3-12|UVA11809|[ Floating-Point Numbers](# [习题3-12 UVA11809 Floating-Point Numbers](https://vjudge.net/problem/UVA-11809))| | |
