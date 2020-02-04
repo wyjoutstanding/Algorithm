@@ -4,7 +4,7 @@
 >
 > [github](https://github.com/wyjoutstanding?tab=repositories)
 >
-> [CSDN博客](https://blog.csdn.net/qq_40738840)
+> [CSDN博客](https://blog.csdn.net/qq_40738840/article/details/104175021)
 
 ### 目录结构
 
@@ -18,3 +18,4 @@
 题目比较略有难度，适合ACM，考研，保研，PAT，CCF-CSP机考中高级训练阶段
 
 欢迎指教、star~
+
