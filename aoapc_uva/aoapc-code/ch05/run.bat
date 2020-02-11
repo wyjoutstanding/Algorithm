@@ -1,0 +1,1 @@
+UVA12504.exe < data.txt > out.txt
