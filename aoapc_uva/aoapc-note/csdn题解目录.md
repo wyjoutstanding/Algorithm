@@ -2,7 +2,7 @@
 
 本文包含紫书的**例题和习题**分析题解的目录索引和一些建议
 
-### 紫书刷题进行中，[github题解系列点这里](https://github.com/wyjoutstanding/Algorithm/tree/master/aoapc_uva)
+### 紫书刷题进行中，题解系列【[GitHub](https://github.com/wyjoutstanding/Algorithm/tree/master/aoapc_uva)|[CSDN](https://blog.csdn.net/qq_40738840/article/details/104175021)】
 
 **[OJ网址点这里](https://vjudge.net/problem)**
 
